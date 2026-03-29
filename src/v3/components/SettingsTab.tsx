@@ -39,6 +39,7 @@ export default function SettingsTab() {
                 <KeyRound size={20} className="icon-bubbly" />
                 <input
                   type="password"
+                  autoComplete="new-password"
                   className="input-bubbly"
                   placeholder="sk-or-v1-..."
                   value={localKey}

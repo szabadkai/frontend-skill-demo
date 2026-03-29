@@ -43,6 +43,7 @@ export default function SettingsTab() {
               <label className="mono-text label-tech"><KeyRound size={12} /> API_KEY</label>
               <input
                 type="password"
+                autoComplete="new-password"
                 className="input-tech mono-text"
                 placeholder="sk-or-v1-..."
                 value={localKey}

@@ -38,6 +38,7 @@ export default function SettingsTab() {
           <input
             id="api-key"
             type="password"
+            autoComplete="new-password"
             className="input-glass"
             placeholder="sk-or-v1-..."
             value={localKey}

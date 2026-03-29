@@ -275,7 +275,11 @@ export const useStore = create<AppState>()(
       // Used by LLM inference (will need to actually bulk insert in real app, doing this simply for now)
       setGoals: (goals) => set({ goals }),
       
-      setApiKey: (key) => set({ openRouterApiKey: key }),
+      setApiKey: (key) => {
+        if (key && key.trim().length > 0) {
+          set({ openRouterApiKey: key.trim() });
+        }
+      },
       setUserProfile: async (profile) => {
         set({ userProfile: profile });
         const user = get().user;

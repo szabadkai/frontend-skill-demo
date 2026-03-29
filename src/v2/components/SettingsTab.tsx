@@ -43,6 +43,7 @@ export default function SettingsTab() {
             <input
               id="api-key"
               type="password"
+              autoComplete="new-password"
               className="input-underline font-mono"
               placeholder="sk-or-v1-..."
               value={localKey}
