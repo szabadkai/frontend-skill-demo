@@ -1,0 +1,117 @@
+.settings-tech {
+  gap: 1.5rem;
+}
+
+.settings-content-tech {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-bottom: 2rem;
+}
+
+.config-card-tech {
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem;
+  gap: 1rem;
+}
+
+.config-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px dashed var(--surface-border);
+  padding-bottom: 0.75rem;
+}
+
+.config-card-header h3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.config-desc-tech {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.config-desc-tech .mono-text {
+  color: var(--accent-light);
+  background: rgba(99, 102, 241, 0.1);
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+}
+
+.api-form-tech {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.input-with-icon-tech {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon-tech {
+  position: absolute;
+  left: 0.75rem;
+  color: var(--text-muted);
+}
+
+.input-with-icon-tech .input-tech {
+  padding-left: 2.25rem;
+  font-family: var(--font-mono);
+}
+
+.config-submit {
+  justify-content: flex-start;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  background: var(--bg-color);
+  margin-top: 0.25rem;
+}
+
+.text-success {
+  color: var(--success);
+}
+
+.security-card-tech {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: var(--radius-main);
+}
+
+.security-icon-tech {
+  color: var(--success);
+  margin-top: 2px;
+}
+
+.security-text-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.security-title-tech {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--success);
+  letter-spacing: 0.5px;
+}
+
+.security-desc-tech {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}

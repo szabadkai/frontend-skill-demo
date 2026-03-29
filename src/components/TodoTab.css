@@ -1,0 +1,212 @@
+.todo-tech {
+  gap: 1.5rem;
+}
+
+.tab-header-tech {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.tab-title-tech {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+
+.status-badge-tech {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--surface-bg);
+  border: 1px solid var(--surface-border);
+  border-radius: 4px;
+  color: var(--accent-light);
+}
+
+.add-form-tech {
+  margin-top: 0.5rem;
+}
+
+.input-wrap-tech {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--surface-bg);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-main);
+  padding: 0 0.5rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-wrap-tech:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.prompt-symbol {
+  color: var(--accent);
+  padding-left: 0.5rem;
+  font-weight: 600;
+}
+
+.prompt-input {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  border-radius: 0;
+  padding-left: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+}
+
+.submit-btn-tech {
+  color: var(--text-muted);
+  padding: 0.5rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, background 0.2s;
+}
+
+.submit-btn-tech:not(:disabled):hover {
+  color: var(--accent-light);
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.submit-btn-tech:disabled {
+  opacity: 0.3;
+}
+
+.todos-wrapper-tech {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.list-header-tech {
+  display: grid;
+  grid-template-columns: 80px 1fr 60px;
+  padding: 0 1rem;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+}
+
+.right-align {
+  text-align: right;
+}
+
+.todo-list-tech {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  list-style: none;
+}
+
+.todo-row-tech {
+  transition: border-color 0.2s, opacity 0.3s;
+}
+
+.todo-row-tech:hover {
+  border-color: var(--text-muted);
+}
+
+.todo-row-tech.is-done-tech {
+  opacity: 0.5;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.is-done-tech .todo-text-tech {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.todo-content-tech {
+  display: flex;
+  align-items: center;
+  padding: 0.85rem 1rem;
+  gap: 1rem;
+}
+
+.task-idx {
+  font-size: 0.75rem;
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.drag-handle-tech {
+  cursor: grab;
+  color: var(--text-muted);
+  opacity: 0.2;
+  transition: opacity 0.2s;
+  display: flex;
+}
+
+.todo-row-tech:hover .drag-handle-tech {
+  opacity: 1;
+}
+
+.checkbox-tech {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--text-muted);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--bg-color);
+  transition: all 0.2s;
+}
+
+.checkbox-tech:hover {
+  border-color: var(--text-primary);
+}
+
+.checkbox-tech.checked-tech {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+.todo-text-tech {
+  flex: 1;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  transition: color 0.3s;
+}
+
+.delete-btn-tech {
+  color: var(--text-muted);
+  opacity: 0;
+  transition: all 0.2s;
+  padding: 0.25rem;
+  border-radius: 4px;
+}
+
+.todo-row-tech:hover .delete-btn-tech {
+  opacity: 1;
+}
+
+.delete-btn-tech:hover {
+  color: var(--danger);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.empty-state-tech {
+  padding: 3rem 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  background: var(--surface-bg);
+  border: 1px dashed var(--surface-border);
+  border-radius: var(--radius-main);
+}

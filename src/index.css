@@ -1,0 +1,94 @@
+:root {
+  /* Typography - Technical & Crisp */
+  --font-sans: 'Figtree', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Fira Code', ui-monospace, SFMono-Regular, monospace;
+  
+  /* Carbon & Chrome Palette */
+  --bg-color: #0A0A0B;       /* Deep Obsidian */
+  
+  --surface-bg: #121214;     /* Elevated panel */
+  --surface-bg-hover: #18181B; /* Subtle hover state */
+  --surface-border: #27272A; /* Precise 1px zinc border */
+  
+  --text-primary: #FAFAFA;   /* Maximum contrast white */
+  --text-secondary: #A1A1AA; /* Muted zinc for metadata */
+  --text-muted: #52525B;     /* Disabled or deep metadata */
+  
+  --accent: #6366F1;         /* Sharp Indigo */
+  --accent-light: #818CF8;   /* Hover / Focus Indigo */
+  --accent-gradient: linear-gradient(to right, #6366F1, #8B5CF6); /* Subtle tech pulse */
+  
+  --success: #10B981;        /* Emerald */
+  --danger: #EF4444;         /* Red */
+  
+  --radius-main: 8px;        /* Precise, subtle corners */
+  --radius-pill: 999px;
+  
+  --shadow-glow: 0 0 16px rgba(99, 102, 241, 0.2);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  height: -webkit-fill-available;
+  background-color: var(--bg-color);
+}
+
+button {
+  font-family: var(--font-sans);
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+  outline: none;
+}
+
+input, textarea {
+  font-family: var(--font-sans);
+  outline: none;
+}
+
+/* Glass & Technical panels */
+.chrome-panel {
+  background: var(--surface-bg);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-main);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.mono-text {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.5px;
+}
+
+/* Scrollbar tweaks - sleek and minimal */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--surface-border);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
