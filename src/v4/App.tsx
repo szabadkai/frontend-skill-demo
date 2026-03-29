@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { flushSync } from 'react-dom';
 import { motion } from 'framer-motion';
+import { useDrag } from '@use-gesture/react';
 import { SquareTerminal, Database, Settings2 } from 'lucide-react';
 import TodoTab from './components/TodoTab';
 import GoalsTab from './components/GoalsTab';
@@ -10,11 +12,31 @@ import './App.css';
 type TabType = 'todos' | 'goals' | 'settings';
 
 function App() {
-  const [activeTab, setTab] = useState<TabType>(() => (localStorage.getItem('lastActiveTab') as TabType) || 'todos');
+  const [[activeTab], setTab] = useState<[TabType, number]>(() => {
+    const saved = localStorage.getItem('lastActiveTab') as TabType;
+    if (saved === 'todos' || saved === 'goals' || saved === 'settings') {
+      return [saved, 0];
+    }
+    return ['todos', 0];
+  });
 
-  const changeTab = (newTab: TabType) => {
+  const changeTab = (newTab: TabType, dir: number) => {
     localStorage.setItem('lastActiveTab', newTab);
-    setTab(newTab);
+    if (!document.startViewTransition) {
+      setTab([newTab, dir]);
+      return;
+    }
+
+    document.documentElement.classList.remove('back-transition');
+    if (dir < 0) {
+      document.documentElement.classList.add('back-transition');
+    }
+
+    document.startViewTransition(() => {
+      flushSync(() => {
+        setTab([newTab, dir]);
+      });
+    });
   };
 
   const navItems = [
@@ -23,7 +45,14 @@ function App() {
     { id: 'settings', label: '/config', icon: Settings2 },
   ] as const;
 
-  const currentIndex = navItems.findIndex(t => t.id === activeTab);
+  const bind = useDrag(({ swipe: [swipeX] }) => {
+    const currentIndex = navItems.findIndex(t => t.id === activeTab);
+    if (swipeX === -1 && currentIndex < navItems.length - 1) {
+      changeTab(navItems[currentIndex + 1].id, 1);
+    } else if (swipeX === 1 && currentIndex > 0) {
+      changeTab(navItems[currentIndex - 1].id, -1);
+    }
+  }, { swipe: { distance: 25, velocity: 0.15 } });
 
   return (
     <div className="app-container app-tech">
@@ -35,35 +64,13 @@ function App() {
         </div>
       </header>
       
-      <main className="main-content-tech" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <div className="tab-content-tech" style={{ overflowX: 'hidden', width: '100%', position: 'relative', flex: 1 }}>
-          <motion.div
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.2}
-            dragDirectionLock
-            onDragEnd={(_, { offset, velocity }) => {
-              const swipeThreshold = 50;
-              if (offset.x < -swipeThreshold || velocity.x < -500) {
-                if (currentIndex < navItems.length - 1) changeTab(navItems[currentIndex + 1].id);
-              } else if (offset.x > swipeThreshold || velocity.x > 500) {
-                if (currentIndex > 0) changeTab(navItems[currentIndex - 1].id);
-              }
-            }}
-            animate={{ x: `-${(currentIndex * 100) / navItems.length}%` }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            style={{ display: 'flex', width: `${navItems.length * 100}%`, height: '100%', touchAction: 'pan-y' }}
-          >
-            <div style={{ width: `${100 / navItems.length}%`, flexShrink: 0 }}>
-              <TodoTab />
-            </div>
-            <div style={{ width: `${100 / navItems.length}%`, flexShrink: 0 }}>
-              <GoalsTab />
-            </div>
-            <div style={{ width: `${100 / navItems.length}%`, flexShrink: 0 }}>
-              <SettingsTab />
-            </div>
-          </motion.div>
+      <main className="main-content-tech" {...bind()} style={{ touchAction: 'pan-y' }}>
+        <div className="tab-content-tech">
+          <div className="vt-tab-container">
+            {activeTab === 'todos' && <TodoTab />}
+            {activeTab === 'goals' && <GoalsTab />}
+            {activeTab === 'settings' && <SettingsTab />}
+          </div>
         </div>
       </main>
 
@@ -71,20 +78,23 @@ function App() {
         <nav className="dock-tech">
           {navItems.map((item) => {
             const Icon = item.icon;
+            const isActive = activeTab === item.id;
             return (
               <button
                 key={item.id}
                 onClick={() => {
                   if (activeTab === item.id) return;
-                  changeTab(item.id);
+                  const currentIndex = navItems.findIndex(t => t.id === activeTab);
+                  const nextIndex = navItems.findIndex(t => t.id === item.id);
+                  changeTab(item.id, nextIndex > currentIndex ? 1 : -1);
                 }}
-                className={`dock-item-tech ${activeTab === item.id ? 'active' : ''}`}
+                className={`dock-item-tech ${isActive ? 'active' : ''}`}
                 aria-label={item.label}
               >
                 <div className="icon-wrap-tech">
-                  <Icon size={20} strokeWidth={activeTab === item.id ? 2.5 : 2} />
-                  <span className={`dock-label mono-text ${activeTab === item.id ? 'active' : ''}`}>{item.label}</span>
-                  {activeTab === item.id && (
+                  <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
+                  <span className={`dock-label mono-text ${isActive ? 'active' : ''}`}>{item.label}</span>
+                  {isActive && (
                     <motion.div
                       layoutId="dock-indicator-tech"
                       className="dock-indicator-tech"

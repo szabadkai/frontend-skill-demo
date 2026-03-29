@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { flushSync } from 'react-dom';
 import { motion } from 'framer-motion';
+import { useDrag } from '@use-gesture/react';
 import { CheckCircle2, Target, Settings } from 'lucide-react';
 import TodoTab from './components/TodoTab';
 import GoalsTab from './components/GoalsTab';
@@ -19,9 +21,23 @@ function App() {
     return ['todos', 0];
   });
 
-  const changeTab = (newTab: TabType) => {
+  const changeTab = (newTab: TabType, dir: number) => {
     localStorage.setItem('lastActiveTab', newTab);
-    setTab([newTab, 0]);
+    if (!document.startViewTransition) {
+      setTab([newTab, dir]);
+      return;
+    }
+
+    document.documentElement.classList.remove('back-transition');
+    if (dir < 0) {
+      document.documentElement.classList.add('back-transition');
+    }
+
+    document.startViewTransition(() => {
+      flushSync(() => {
+        setTab([newTab, dir]);
+      });
+    });
   };
 
   const tabs = [
@@ -30,7 +46,14 @@ function App() {
     { id: 'settings', label: 'Settings', icon: Settings },
   ] as const;
 
-  const currentIndex = tabs.findIndex(t => t.id === activeTab);
+  const bind = useDrag(({ swipe: [swipeX] }) => {
+    const currentIndex = tabs.findIndex(t => t.id === activeTab);
+    if (swipeX === -1 && currentIndex < tabs.length - 1) {
+      changeTab(tabs[currentIndex + 1].id, 1);
+    } else if (swipeX === 1 && currentIndex > 0) {
+      changeTab(tabs[currentIndex - 1].id, -1);
+    }
+  }, { swipe: { distance: 25, velocity: 0.15 } });
 
   return (
     <div className="app glass-bg">
@@ -39,7 +62,7 @@ function App() {
         <UserMenu />
       </header>
 
-      <main className="main-content">
+      <main className="main-content" {...bind()} style={{ touchAction: 'pan-y' }}>
         <div className="tabs glass-panel">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -48,7 +71,9 @@ function App() {
                 key={tab.id}
                 onClick={() => {
                   if (activeTab === tab.id) return;
-                  changeTab(tab.id);
+                  const currentIndex = tabs.findIndex(t => t.id === activeTab);
+                  const nextIndex = tabs.findIndex(t => t.id === tab.id);
+                  changeTab(tab.id, nextIndex > currentIndex ? 1 : -1);
                 }}
                 className={`tab-btn ${activeTab === tab.id ? 'active' : ''}`}
               >
@@ -62,34 +87,12 @@ function App() {
           })}
         </div>
 
-        <div className="tab-content" style={{ overflowX: 'hidden', width: '100%', position: 'relative' }}>
-          <motion.div
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.2}
-            dragDirectionLock
-            onDragEnd={(_, { offset, velocity }) => {
-              const swipeThreshold = 50;
-              if (offset.x < -swipeThreshold || velocity.x < -500) {
-                if (currentIndex < tabs.length - 1) changeTab(tabs[currentIndex + 1].id);
-              } else if (offset.x > swipeThreshold || velocity.x > 500) {
-                if (currentIndex > 0) changeTab(tabs[currentIndex - 1].id);
-              }
-            }}
-            animate={{ x: `-${(currentIndex * 100) / tabs.length}%` }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            style={{ display: 'flex', width: `${tabs.length * 100}%`, touchAction: 'pan-y' }}
-          >
-            <div style={{ width: `${100 / tabs.length}%`, flexShrink: 0 }}>
-              <TodoTab />
-            </div>
-            <div style={{ width: `${100 / tabs.length}%`, flexShrink: 0 }}>
-              <GoalsTab />
-            </div>
-            <div style={{ width: `${100 / tabs.length}%`, flexShrink: 0 }}>
-              <SettingsTab />
-            </div>
-          </motion.div>
+        <div className="tab-content">
+          <div className="vt-tab-container">
+            {activeTab === 'todos' && <TodoTab />}
+            {activeTab === 'goals' && <GoalsTab />}
+            {activeTab === 'settings' && <SettingsTab />}
+          </div>
         </div>
       </main>
     </div>
