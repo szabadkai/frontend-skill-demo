@@ -14,8 +14,29 @@ export default function TodoTab() {
   const [inferenceMode, setInferenceMode] = useState<'hidden' | 'select-goal' | 'loading' | 'select-tasks'>('hidden');
   const [suggestedTasks, setSuggestedTasks] = useState<Array<{text: string, selected: boolean}>>([]);
   
+  const [showArchived, setShowArchived] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
+
+  const now = new Date();
+  const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+
+  const activeTodos = todos.filter(t => !t.completed);
+  const completedTodos = todos.filter(t => {
+    if (!t.completed) return false;
+    const ageMs = now.getTime() - new Date(t.created_at).getTime();
+    return ageMs <= THIRTY_DAYS_MS;
+  });
+  const archivedTodos = todos.filter(t => {
+    if (!t.completed) return false;
+    const ageMs = now.getTime() - new Date(t.created_at).getTime();
+    return ageMs > THIRTY_DAYS_MS;
+  });
+
+  const handleReorder = (newActiveOrder: typeof todos) => {
+    const newOrder = [...newActiveOrder, ...todos.filter(t => t.completed)];
+    reorderTodos(newOrder);
+  };
 
   const handleEditStart = (id: string, text: string) => {
     setEditingId(id);
@@ -72,7 +93,54 @@ export default function TodoTab() {
     setSuggestedTasks([]);
   };
 
-  const pendingCount = todos.filter(t => !t.completed).length;
+  const pendingCount = activeTodos.length;
+
+  const renderTodoContent = (todo: typeof todos[0], isDraggable: boolean = true) => (
+    <div className="todo-content">
+      <button 
+        className="minimal-checkbox"
+        onClick={() => toggleTodo(todo.id)}
+        aria-label="Toggle Complete"
+      >
+        <motion.div 
+          className="checkbox-fill"
+          initial={false}
+          animate={{ scale: todo.completed ? 1 : 0 }}
+          transition={{ type: "spring", stiffness: 500, damping: 30 }}
+        />
+      </button>
+      
+      {editingId === todo.id ? (
+        <AutocompleteInput
+          autoFocus
+          className="input-underline font-serif"
+          style={{ flex: 1, padding: 0 }}
+          value={editText}
+          onChange={setEditText}
+          onBlur={handleEditSubmit}
+          onSubmit={handleEditSubmit}
+        />
+      ) : (
+        <span 
+          className="todo-text font-sans" 
+          onDoubleClick={() => handleEditStart(todo.id, todo.text)}
+          style={{ cursor: 'text' }}
+        >
+          <ParsedText text={todo.text} />
+        </span>
+      )}
+      
+      <button className="icon-btn delete-btn" onClick={() => deleteTodo(todo.id)}>
+        <X size={16} />
+      </button>
+      
+      {isDraggable && (
+        <div className="drag-handle">
+          <div className="grip-lines"></div>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className="tab-container todo-minimal">
@@ -170,9 +238,9 @@ export default function TodoTab() {
       )}
 
       <div className="todos-wrapper">
-        <Reorder.Group axis="y" values={todos} onReorder={reorderTodos} className="todo-list">
+        <Reorder.Group axis="y" values={activeTodos} onReorder={handleReorder} className="todo-list">
           <AnimatePresence>
-            {todos.length === 0 && (
+            {activeTodos.length === 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -183,7 +251,7 @@ export default function TodoTab() {
               </motion.div>
             )}
             
-            {todos.map((todo) => (
+            {activeTodos.map((todo) => (
               <Reorder.Item
                 key={todo.id}
                 value={todo}
@@ -191,54 +259,69 @@ export default function TodoTab() {
                 animate={{ opacity: 1, height: 'auto', scale: 1 }}
                 exit={{ opacity: 0, height: 0, scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 350, damping: 35 }}
-                className={`todo-row ${todo.completed ? 'is-done' : ''}`}
+                className={`todo-row`}
               >
-                <div className="todo-content">
-                  <button 
-                    className="minimal-checkbox"
-                    onClick={() => toggleTodo(todo.id)}
-                    aria-label="Toggle Complete"
-                  >
-                    <motion.div 
-                      className="checkbox-fill"
-                      initial={false}
-                      animate={{ scale: todo.completed ? 1 : 0 }}
-                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                    />
-                  </button>
-                  
-                  {editingId === todo.id ? (
-                    <AutocompleteInput
-                      autoFocus
-                      className="input-underline font-serif"
-                      style={{ flex: 1, padding: 0 }}
-                      value={editText}
-                      onChange={setEditText}
-                      onBlur={handleEditSubmit}
-                      onSubmit={handleEditSubmit}
-                    />
-                  ) : (
-                    <span 
-                      className="todo-text font-sans" 
-                      onDoubleClick={() => handleEditStart(todo.id, todo.text)}
-                      style={{ cursor: 'text' }}
-                    >
-                      <ParsedText text={todo.text} />
-                    </span>
-                  )}
-                  
-                  <button className="icon-btn delete-btn" onClick={() => deleteTodo(todo.id)}>
-                    <X size={16} />
-                  </button>
-                  
-                  <div className="drag-handle">
-                    <div className="grip-lines"></div>
-                  </div>
-                </div>
+                {renderTodoContent(todo, true)}
               </Reorder.Item>
             ))}
           </AnimatePresence>
         </Reorder.Group>
+
+        {completedTodos.length > 0 && (
+          <div className="completed-group" style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '0' }}>
+            <h4 className="font-sans" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '2px', margin: '0 0 0.5rem 0' }}>Archived</h4>
+            <AnimatePresence>
+              {completedTodos.map(todo => (
+                <motion.div 
+                  key={todo.id}
+                  initial={{ opacity: 0, height: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, height: 'auto', scale: 1 }}
+                  exit={{ opacity: 0, height: 0, scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 350, damping: 35 }}
+                  className={`todo-row is-done`}
+                >
+                  {renderTodoContent(todo, false)}
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
+
+        {archivedTodos.length > 0 && (
+          <div style={{ marginTop: '2.5rem', textAlign: 'center' }}>
+            <button 
+              onClick={() => setShowArchived(!showArchived)}
+              className="font-sans" 
+              style={{ background: 'transparent', color: 'var(--text-muted)', border: '1px solid var(--surface-border)', fontSize: '0.75rem', padding: '0.5rem 1rem', textTransform: 'uppercase', letterSpacing: '1px', cursor: 'pointer' }}
+            >
+              {showArchived ? 'Hide History' : `Show History (${archivedTodos.length})`}
+            </button>
+            
+            <AnimatePresence>
+              {showArchived && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }} 
+                  animate={{ opacity: 1, height: 'auto' }} 
+                  exit={{ opacity: 0, height: 0 }}
+                  style={{ display: 'flex', flexDirection: 'column', marginTop: '1rem', overflow: 'hidden' }}
+                >
+                  {archivedTodos.map(todo => (
+                    <motion.div 
+                      key={todo.id}
+                      initial={{ opacity: 0, height: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, height: 'auto', scale: 1 }}
+                      exit={{ opacity: 0, height: 0, scale: 0.98 }}
+                      transition={{ type: "spring", stiffness: 350, damping: 35 }}
+                      className={`todo-row is-done`}
+                    >
+                      {renderTodoContent(todo, false)}
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
       </div>
     </div>
   );

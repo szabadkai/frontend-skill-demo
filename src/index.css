@@ -228,21 +228,21 @@ html.back-transition ::view-transition-new(tab-content) {
 }
 
 @keyframes slide-in-right {
-  from { transform: translateX(100px); opacity: 0; }
+  from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
 
 @keyframes slide-out-left {
   from { transform: translateX(0); opacity: 1; }
-  to { transform: translateX(-100px); opacity: 0; }
+  to { transform: translateX(-100%); opacity: 0; }
 }
 
 @keyframes slide-in-left {
-  from { transform: translateX(-100px); opacity: 0; }
+  from { transform: translateX(-100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
 
 @keyframes slide-out-right {
   from { transform: translateX(0); opacity: 1; }
-  to { transform: translateX(100px); opacity: 0; }
+  to { transform: translateX(100%); opacity: 0; }
 }

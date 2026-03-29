@@ -14,8 +14,29 @@ export default function TodoTab() {
   const [inferenceMode, setInferenceMode] = useState<'hidden' | 'select-goal' | 'loading' | 'select-tasks'>('hidden');
   const [suggestedTasks, setSuggestedTasks] = useState<Array<{text: string, selected: boolean}>>([]);
   
+  const [showArchived, setShowArchived] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
+
+  const now = new Date();
+  const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+
+  const activeTodos = todos.filter(t => !t.completed);
+  const completedTodos = todos.filter(t => {
+    if (!t.completed) return false;
+    const ageMs = now.getTime() - new Date(t.created_at).getTime();
+    return ageMs <= THIRTY_DAYS_MS;
+  });
+  const archivedTodos = todos.filter(t => {
+    if (!t.completed) return false;
+    const ageMs = now.getTime() - new Date(t.created_at).getTime();
+    return ageMs > THIRTY_DAYS_MS;
+  });
+
+  const handleReorder = (newActiveOrder: typeof todos) => {
+    const newOrder = [...newActiveOrder, ...todos.filter(t => t.completed)];
+    reorderTodos(newOrder);
+  };
 
   const handleEditStart = (id: string, text: string) => {
     setEditingId(id);
@@ -72,7 +93,44 @@ export default function TodoTab() {
     setSuggestedTasks([]);
   };
 
-  const pendingCount = todos.filter(t => !t.completed).length;
+  const pendingCount = activeTodos.length;
+
+  const renderTodoContent = (todo: typeof todos[0], isDraggable: boolean = true) => (
+    <div className="todo-content-bubbly">
+      {isDraggable && <div className="drag-handle-soft"><GripVertical size={20} strokeWidth={2} className="grip-icon-soft" /></div>}
+      <button className={`bouncy-checkbox ${todo.completed ? 'checked-soft' : ''}`} onClick={() => toggleTodo(todo.id)} aria-label="Toggle Complete">
+        <AnimatePresence>
+          {todo.completed && (
+            <motion.div initial={{ scale: 0, rotate: -45 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0, rotate: 45 }} transition={{ type: "spring", stiffness: 500, damping: 20 }}>
+              <Check size={16} strokeWidth={4} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </button>
+      {editingId === todo.id ? (
+        <AutocompleteInput
+          autoFocus
+          className="input-bubbly"
+          style={{ flex: 1, padding: '0.25rem 1rem' }}
+          value={editText}
+          onChange={setEditText}
+          onBlur={handleEditSubmit}
+          onSubmit={handleEditSubmit}
+        />
+      ) : (
+        <span 
+          className="todo-text-soft" 
+          onDoubleClick={() => handleEditStart(todo.id, todo.text)}
+          style={{ cursor: 'text' }}
+        >
+          <ParsedText text={todo.text} />
+        </span>
+      )}
+      <button className="delete-btn-soft" onClick={() => deleteTodo(todo.id)}>
+        <X size={18} strokeWidth={2.5} />
+      </button>
+    </div>
+  );
 
   return (
     <div className="tab-container todo-bubbly">
@@ -173,60 +231,78 @@ export default function TodoTab() {
       )}
 
       <div className="todos-wrapper-soft">
-        <Reorder.Group axis="y" values={todos} onReorder={reorderTodos} className="todo-list-bubbly">
+        <Reorder.Group axis="y" values={activeTodos} onReorder={handleReorder} className="todo-list-bubbly">
           <AnimatePresence mode="popLayout">
-            {todos.length === 0 && (
+            {activeTodos.length === 0 && (
               <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} className="empty-state-bubbly">
                 <div className="empty-circle">🚀</div>
                 <p>All clear! Relax or add a new task.</p>
               </motion.div>
             )}
             
-            {todos.map((todo) => (
+            {activeTodos.map((todo) => (
               <Reorder.Item
                 key={todo.id} value={todo}
                 initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: -20 }}
                 transition={{ type: "spring", stiffness: 450, damping: 25 }}
-                className={`todo-row-soft ${todo.completed ? 'is-done-soft' : ''}`} 
+                className={`todo-row-soft`} 
               >
-                <div className="todo-content-bubbly">
-                  <div className="drag-handle-soft"><GripVertical size={20} strokeWidth={2} className="grip-icon-soft" /></div>
-                  <button className={`bouncy-checkbox ${todo.completed ? 'checked-soft' : ''}`} onClick={() => toggleTodo(todo.id)} aria-label="Toggle Complete">
-                    <AnimatePresence>
-                      {todo.completed && (
-                        <motion.div initial={{ scale: 0, rotate: -45 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0, rotate: 45 }} transition={{ type: "spring", stiffness: 500, damping: 20 }}>
-                          <Check size={16} strokeWidth={4} />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </button>
-                  {editingId === todo.id ? (
-                    <AutocompleteInput
-                      autoFocus
-                      className="input-bubbly"
-                      style={{ flex: 1, padding: '0.25rem 1rem' }}
-                      value={editText}
-                      onChange={setEditText}
-                      onBlur={handleEditSubmit}
-                      onSubmit={handleEditSubmit}
-                    />
-                  ) : (
-                    <span 
-                      className="todo-text-soft" 
-                      onDoubleClick={() => handleEditStart(todo.id, todo.text)}
-                      style={{ cursor: 'text' }}
-                    >
-                      <ParsedText text={todo.text} />
-                    </span>
-                  )}
-                  <button className="delete-btn-soft" onClick={() => deleteTodo(todo.id)}>
-                    <X size={18} strokeWidth={2.5} />
-                  </button>
-                </div>
+                {renderTodoContent(todo, true)}
               </Reorder.Item>
             ))}
           </AnimatePresence>
         </Reorder.Group>
+
+        {completedTodos.length > 0 && (
+          <div className="completed-group" style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <h4 style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 800, paddingLeft: '1rem', marginBottom: '0.25rem' }}>YAY! DONE! 🎉</h4>
+            <AnimatePresence mode="popLayout">
+              {completedTodos.map(todo => (
+                <motion.div 
+                  key={todo.id}
+                  initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: -20 }}
+                  transition={{ type: "spring", stiffness: 450, damping: 25 }}
+                  className={`todo-row-soft is-done-soft`}
+                >
+                  {renderTodoContent(todo, false)}
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
+
+        {archivedTodos.length > 0 && (
+          <div style={{ marginTop: '3rem', textAlign: 'center' }}>
+            <button 
+              onClick={() => setShowArchived(!showArchived)}
+              style={{ background: 'var(--bg-color)', color: 'var(--text-muted)', border: '2px solid var(--surface-border)', borderRadius: '1rem', fontSize: '0.9rem', padding: '0.6rem 1.25rem', fontWeight: 800, cursor: 'pointer' }}
+            >
+              {showArchived ? 'Hide Old Tasks' : `Show Old Tasks (${archivedTodos.length})`}
+            </button>
+            
+            <AnimatePresence mode="popLayout">
+              {showArchived && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }} 
+                  animate={{ opacity: 1, height: 'auto' }} 
+                  exit={{ opacity: 0, height: 0 }}
+                  style={{ display: 'flex', flexDirection: 'column', marginTop: '1.5rem', overflow: 'hidden', gap: '0.5rem' }}
+                >
+                  {archivedTodos.map(todo => (
+                    <motion.div 
+                      key={todo.id}
+                      initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: -20 }}
+                      transition={{ type: "spring", stiffness: 450, damping: 25 }}
+                      className={`todo-row-soft is-done-soft`}
+                    >
+                      {renderTodoContent(todo, false)}
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -14,8 +14,29 @@ export default function TodoTab() {
   const [inferenceMode, setInferenceMode] = useState<'hidden' | 'select-goal' | 'loading' | 'select-tasks'>('hidden');
   const [suggestedTasks, setSuggestedTasks] = useState<Array<{text: string, selected: boolean}>>([]);
   
+  const [showArchived, setShowArchived] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
+
+  const now = new Date();
+  const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+
+  const activeTodos = todos.filter(t => !t.completed);
+  const completedTodos = todos.filter(t => {
+    if (!t.completed) return false;
+    const ageMs = now.getTime() - new Date(t.created_at).getTime();
+    return ageMs <= THIRTY_DAYS_MS;
+  });
+  const archivedTodos = todos.filter(t => {
+    if (!t.completed) return false;
+    const ageMs = now.getTime() - new Date(t.created_at).getTime();
+    return ageMs > THIRTY_DAYS_MS;
+  });
+
+  const handleReorder = (newActiveOrder: typeof todos) => {
+    const newOrder = [...newActiveOrder, ...todos.filter(t => t.completed)];
+    reorderTodos(newOrder);
+  };
 
   const handleEditStart = (id: string, text: string) => {
     setEditingId(id);
@@ -72,7 +93,68 @@ export default function TodoTab() {
     setSuggestedTasks([]);
   };
 
-  const pendingCount = todos.filter(t => !t.completed).length;
+  const pendingCount = activeTodos.length;
+
+  const renderTodoContent = (todo: typeof todos[0], idx: number, isDraggable: boolean = true) => (
+    <div className={`todo-content-tech`}>
+      {isDraggable ? (
+        <div className="drag-handle-tech">
+          <GripVertical size={14} className="grip-icon-tech" />
+        </div>
+      ) : (
+        <div className="drag-handle-tech" style={{ opacity: 0.2 }}>
+           <Check size={14} className="grip-icon-tech" />
+        </div>
+      )}
+      
+      <span className="task-idx mono-text text-muted">
+        {String(idx).padStart(2, '0')}
+      </span>
+      
+      <button 
+        className={`checkbox-tech ${todo.completed ? 'checked-tech' : ''}`}
+        onClick={() => toggleTodo(todo.id)}
+        aria-label="Toggle Complete"
+      >
+        <AnimatePresence>
+          {todo.completed && (
+            <motion.div 
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0 }}
+              transition={{ type: "spring", stiffness: 700, damping: 30 }}
+            >
+              <Check size={12} strokeWidth={4} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </button>
+      
+      {editingId === todo.id ? (
+        <AutocompleteInput
+          autoFocus
+          className="input-tech"
+          style={{ flex: 1, padding: '0.25rem 0.5rem' }}
+          value={editText}
+          onChange={setEditText}
+          onBlur={handleEditSubmit}
+          onSubmit={handleEditSubmit}
+        />
+      ) : (
+        <span 
+          className={`todo-text-tech ${todo.completed ? 'mono-text' : ''}`} 
+          onDoubleClick={() => handleEditStart(todo.id, todo.text)}
+          style={{ cursor: 'text' }}
+        >
+          <ParsedText text={todo.text} />
+        </span>
+      )}
+      
+      <button className="delete-btn-tech" onClick={() => deleteTodo(todo.id)}>
+        <X size={14} strokeWidth={2} />
+      </button>
+    </div>
+  );
 
   return (
     <div className="tab-container todo-tech">
@@ -174,9 +256,9 @@ export default function TodoTab() {
           <span className="right-align">ACTIONS</span>
         </div>
         
-        <Reorder.Group axis="y" values={todos} onReorder={reorderTodos} className="todo-list-tech">
+        <Reorder.Group axis="y" values={activeTodos} onReorder={handleReorder} className="todo-list-tech">
           <AnimatePresence mode="popLayout">
-            {todos.length === 0 && (
+            {activeTodos.length === 0 && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -187,7 +269,7 @@ export default function TodoTab() {
               </motion.div>
             )}
             
-            {todos.map((todo, idx) => (
+            {activeTodos.map((todo, idx) => (
               <Reorder.Item
                 key={todo.id}
                 value={todo}
@@ -195,64 +277,68 @@ export default function TodoTab() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 10, height: 0 }}
                 transition={{ type: "spring", stiffness: 600, damping: 40 }}
-                className={`todo-row-tech chrome-panel ${todo.completed ? 'is-done-tech' : ''}`}
+                className={`todo-row-tech chrome-panel`}
               >
-                <div className="todo-content-tech">
-                  <div className="drag-handle-tech">
-                    <GripVertical size={14} className="grip-icon-tech" />
-                  </div>
-                  
-                  <span className="task-idx mono-text text-muted">
-                    {String(idx).padStart(2, '0')}
-                  </span>
-                  
-                  <button 
-                    className={`checkbox-tech ${todo.completed ? 'checked-tech' : ''}`}
-                    onClick={() => toggleTodo(todo.id)}
-                    aria-label="Toggle Complete"
-                  >
-                    <AnimatePresence>
-                      {todo.completed && (
-                        <motion.div 
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          exit={{ scale: 0 }}
-                          transition={{ type: "spring", stiffness: 700, damping: 30 }}
-                        >
-                          <Check size={12} strokeWidth={4} />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </button>
-                  
-                  {editingId === todo.id ? (
-                    <AutocompleteInput
-                      autoFocus
-                      className="input-tech"
-                      style={{ flex: 1, padding: '0.25rem 0.5rem' }}
-                      value={editText}
-                      onChange={setEditText}
-                      onBlur={handleEditSubmit}
-                      onSubmit={handleEditSubmit}
-                    />
-                  ) : (
-                    <span 
-                      className={`todo-text-tech ${todo.completed ? 'mono-text' : ''}`} 
-                      onDoubleClick={() => handleEditStart(todo.id, todo.text)}
-                      style={{ cursor: 'text' }}
-                    >
-                      <ParsedText text={todo.text} />
-                    </span>
-                  )}
-                  
-                  <button className="delete-btn-tech" onClick={() => deleteTodo(todo.id)}>
-                    <X size={14} strokeWidth={2} />
-                  </button>
-                </div>
+                {renderTodoContent(todo, idx, true)}
               </Reorder.Item>
             ))}
           </AnimatePresence>
         </Reorder.Group>
+
+        {completedTodos.length > 0 && (
+          <div className="completed-group" style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <h4 className="mono-text" style={{ fontSize: '0.75rem', color: 'var(--accent)', paddingLeft: '0.75rem', marginBottom: '0.25rem' }}>&gt; EXECUTED_PAYLOADS</h4>
+            <AnimatePresence mode="popLayout">
+              {completedTodos.map((todo, idx) => (
+                <motion.div 
+                  key={todo.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10, height: 0 }}
+                  transition={{ type: "spring", stiffness: 600, damping: 40 }}
+                  className={`todo-row-tech chrome-panel is-done-tech`}
+                >
+                  {renderTodoContent(todo, activeTodos.length + idx, false)}
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
+
+        {archivedTodos.length > 0 && (
+          <div style={{ marginTop: '3rem', textAlign: 'center' }}>
+            <button 
+              onClick={() => setShowArchived(!showArchived)}
+              className="submit-btn-tech mono-text"
+              style={{ padding: '0.5rem 1.5rem', border: '1px solid var(--surface-border)' }}
+            >
+              {showArchived ? '[ HIDE_ARCHIVE ]' : `[ EXPAND_ARCHIVE: ${archivedTodos.length} ]`}
+            </button>
+            <AnimatePresence mode="popLayout">
+              {showArchived && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }} 
+                  animate={{ opacity: 1, height: 'auto' }} 
+                  exit={{ opacity: 0, height: 0 }}
+                  style={{ display: 'flex', flexDirection: 'column', marginTop: '1.5rem', overflow: 'hidden', gap: '0.4rem' }}
+                >
+                  {archivedTodos.map((todo, idx) => (
+                    <motion.div 
+                      key={todo.id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 10, height: 0 }}
+                      transition={{ type: "spring", stiffness: 600, damping: 40 }}
+                      className={`todo-row-tech chrome-panel is-done-tech opacity-muted`}
+                    >
+                      {renderTodoContent(todo, activeTodos.length + completedTodos.length + idx, false)}
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
       </div>
     </div>
   );

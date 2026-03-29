@@ -14,8 +14,30 @@ export default function TodoTab() {
   const [inferenceMode, setInferenceMode] = useState<'hidden' | 'select-goal' | 'loading' | 'select-tasks'>('hidden');
   const [suggestedTasks, setSuggestedTasks] = useState<Array<{text: string, selected: boolean}>>([]);
   
+  const [showArchived, setShowArchived] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
+
+  const now = new Date();
+  const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+
+  const activeTodos = todos.filter(t => !t.completed);
+  const completedTodos = todos.filter(t => {
+    if (!t.completed) return false;
+    const ageMs = now.getTime() - new Date(t.created_at).getTime();
+    return ageMs <= THIRTY_DAYS_MS;
+  });
+  const archivedTodos = todos.filter(t => {
+    if (!t.completed) return false;
+    const ageMs = now.getTime() - new Date(t.created_at).getTime();
+    return ageMs > THIRTY_DAYS_MS;
+  });
+
+  const handleReorder = (newActiveOrder: typeof todos) => {
+    // Preserve completed and archived items when saving order
+    const newOrder = [...newActiveOrder, ...todos.filter(t => t.completed)];
+    reorderTodos(newOrder);
+  };
 
   const handleEditStart = (id: string, text: string) => {
     setEditingId(id);
@@ -71,6 +93,46 @@ export default function TodoTab() {
     setInferenceMode('hidden');
     setSuggestedTasks([]);
   };
+
+  const renderTodoContent = (todo: typeof todos[0], isDraggable: boolean = true) => (
+    <>
+      {isDraggable && <div className="drag-handle"><GripVertical size={18} /></div>}
+      <button 
+        className="checkbox-custom"
+        onClick={() => toggleTodo(todo.id)}
+      >
+        <motion.div 
+          initial={false}
+          animate={{ scale: todo.completed ? 1 : 0 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        >
+          <Check size={16} />
+        </motion.div>
+      </button>
+      {editingId === todo.id ? (
+        <AutocompleteInput
+          autoFocus
+          className="input-glass"
+          style={{ flex: 1, padding: '0.5rem 1rem' }}
+          value={editText}
+          onChange={setEditText}
+          onBlur={handleEditSubmit}
+          onSubmit={handleEditSubmit}
+        />
+      ) : (
+        <span 
+          className="todo-text" 
+          onDoubleClick={() => handleEditStart(todo.id, todo.text)}
+          style={{ cursor: 'text' }}
+        >
+          <ParsedText text={todo.text} />
+        </span>
+      )}
+      <button className="del-btn" onClick={() => deleteTodo(todo.id)}>
+        <Trash2 size={16} />
+      </button>
+    </>
+  );
 
   return (
     <div className="tab-container todo-v1">
@@ -160,61 +222,81 @@ export default function TodoTab() {
       )}
 
       <div className="todos-wrapper">
-        <Reorder.Group axis="y" values={todos} onReorder={reorderTodos} className="todo-list">
+        <Reorder.Group axis="y" values={activeTodos} onReorder={handleReorder} className="todo-list">
           <AnimatePresence>
-            {todos.length === 0 && (
+            {activeTodos.length === 0 && (
               <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="empty-state">
                 No active tasks.
               </motion.div>
             )}
-            {todos.map((todo) => (
+            {activeTodos.map((todo) => (
               <Reorder.Item
                 key={todo.id}
                 value={todo}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, x: -50 }}
-                className={`todo-item glass-panel ${todo.completed ? 'completed' : ''}`}
+                className={`todo-item glass-panel`}
               >
-                <div className="drag-handle"><GripVertical size={18} /></div>
-                <button 
-                  className="checkbox-custom"
-                  onClick={() => toggleTodo(todo.id)}
-                >
-                  <motion.div 
-                    initial={false}
-                    animate={{ scale: todo.completed ? 1 : 0 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  >
-                    <Check size={16} />
-                  </motion.div>
-                </button>
-                {editingId === todo.id ? (
-                  <AutocompleteInput
-                    autoFocus
-                    className="input-glass"
-                    style={{ flex: 1, padding: '0.5rem 1rem' }}
-                    value={editText}
-                    onChange={setEditText}
-                    onBlur={handleEditSubmit}
-                    onSubmit={handleEditSubmit}
-                  />
-                ) : (
-                  <span 
-                    className="todo-text" 
-                    onDoubleClick={() => handleEditStart(todo.id, todo.text)}
-                    style={{ cursor: 'text' }}
-                  >
-                    <ParsedText text={todo.text} />
-                  </span>
-                )}
-                <button className="del-btn" onClick={() => deleteTodo(todo.id)}>
-                  <Trash2 size={16} />
-                </button>
+                {renderTodoContent(todo, true)}
               </Reorder.Item>
             ))}
           </AnimatePresence>
         </Reorder.Group>
+
+        {completedTodos.length > 0 && (
+          <div className="completed-group" style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <h4 style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginLeft: '0.5rem', marginBottom: '0.25rem' }}>Completed</h4>
+            <AnimatePresence>
+              {completedTodos.map(todo => (
+                <motion.div 
+                  key={todo.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, x: -50 }}
+                  className={`todo-item glass-panel completed`}
+                >
+                  {renderTodoContent(todo, false)}
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
+
+        {archivedTodos.length > 0 && (
+          <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+            <button 
+              onClick={() => setShowArchived(!showArchived)}
+              className="btn-primary" 
+              style={{ background: 'transparent', color: 'var(--text-muted)', border: '1px solid var(--surface-border)', fontSize: '0.85rem', padding: '0.5rem 1rem' }}
+            >
+              {showArchived ? 'Hide Archived' : `Show Archived (${archivedTodos.length})`}
+            </button>
+            
+            <AnimatePresence>
+              {showArchived && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }} 
+                  animate={{ opacity: 1, height: 'auto' }} 
+                  exit={{ opacity: 0, height: 0 }}
+                  style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1rem', overflow: 'hidden' }}
+                >
+                  {archivedTodos.map(todo => (
+                    <motion.div 
+                      key={todo.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, x: -50 }}
+                      className={`todo-item glass-panel completed`}
+                    >
+                      {renderTodoContent(todo, false)}
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
       </div>
     </div>
   );
