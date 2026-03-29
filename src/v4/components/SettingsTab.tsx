@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useStore } from '../../store/useStore';
 import { KeyRound, ShieldAlert, TerminalSquare, User } from 'lucide-react';
+import ThemeSwitcher from '../../components/ThemeSwitcher';
 import './SettingsTab.css';
 
 export default function SettingsTab() {
@@ -70,6 +71,15 @@ export default function SettingsTab() {
             <span className="security-desc-tech">
               Payload never transmitted to origin servers. Evaluated securely in local browser runtime.
             </span>
+          </div>
+        </div>
+
+        <div className="config-card-tech chrome-panel" style={{marginTop: '1rem'}}>
+          <div className="config-card-header">
+            <h3 className="mono-text">UI_RENDER_CONFIG</h3>
+          </div>
+          <div style={{marginTop: '1rem'}}>
+            <ThemeSwitcher />
           </div>
         </div>
       </div>

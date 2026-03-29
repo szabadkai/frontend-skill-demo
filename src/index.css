@@ -176,8 +176,8 @@ input, textarea { font-family: inherit; outline: none; }
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Softened shadow in light mode, subtle in dark */
 }
 
-/* Ensure V4 dark mode retains its 0 4px 12px rgba(0,0,0,0.5) shadow */
-body.theme-v4:not(.light) .chrome-panel {
+/* Ensure V4 dark mode retains its deep shadow */
+body.theme-v4.dark .chrome-panel {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 

@@ -1,0 +1,58 @@
+/* Inline Theme Switcher (embedded inside Settings tabs) */
+.theme-switcher-inline {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.ts-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ts-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ts-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ts-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid var(--surface-border);
+  background: transparent;
+  color: var(--text-secondary, var(--text-muted));
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ts-chip:hover {
+  border-color: var(--text-muted);
+  background: rgba(128, 128, 128, 0.08);
+}
+
+.ts-chip--active {
+  border-color: var(--accent, #4F46E5);
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--accent-light, var(--accent, #6366F1));
+  font-weight: 600;
+}
+
+.ts-chip--active:hover {
+  background: rgba(99, 102, 241, 0.18);
+}

@@ -1,5 +1,5 @@
-import React, { useEffect, useState, Suspense } from 'react';
-import { Sun, Moon } from 'lucide-react';
+import React, { useEffect, Suspense } from 'react';
+import { useStore } from './store/useStore';
 
 // Dynamically import versions so CSS chunks don't aggressively collide
 const AppV1 = React.lazy(() => import('./v1/App'));
@@ -7,118 +7,88 @@ const AppV2 = React.lazy(() => import('./v2/App'));
 const AppV3 = React.lazy(() => import('./v3/App'));
 const AppV4 = React.lazy(() => import('./v4/App'));
 
+// Map from design theme to its "native" dark/light state
+// v1, v4 are natively dark; v2, v3 are natively light
+const nativeDark: Record<string, boolean> = {
+  v1: true, v2: false, v3: false, v4: true,
+};
+
+function resolveIsDark(colorMode: 'system' | 'light' | 'dark'): boolean {
+  if (colorMode === 'dark') return true;
+  if (colorMode === 'light') return false;
+  // 'system' — use OS preference
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
+function applyBodyClasses(theme: string, isDark: boolean) {
+  // The CSS expects:
+  //   body.theme-v1        → dark (native)
+  //   body.theme-v1.light  → light override
+  //   body.theme-v2        → light (native)
+  //   body.theme-v2.dark   → dark override
+  //
+  // We normalise so the body always gets both:
+  //   `theme-vX` AND either `dark` or `light`
+  const nativeThemeDark = nativeDark[theme];
+  let cls = `theme-${theme}`;
+
+  if (nativeThemeDark && !isDark) {
+    cls += ' light';
+  } else if (!nativeThemeDark && isDark) {
+    cls += ' dark';
+  }
+
+  // Always add explicit light/dark so the ThemeSwitcher CSS can target it
+  cls += isDark ? ' dark-active' : ' light-active';
+
+  document.body.className = cls;
+}
+
 function MainRouter() {
-  const [version, setVersion] = useState<string>('4');
-  
-  // V1 natively dark, V2 light, V3 light, V4 dark. 
-  // Let's create a map of native themes so default is smooth:
-  const nativeIsDark: Record<string, boolean> = {
-    '1': true,
-    '2': false,
-    '3': false,
-    '4': true,
-  };
+  const designTheme = useStore(s => s.designTheme);
+  const colorMode = useStore(s => s.colorMode);
+  const setDesignTheme = useStore(s => s.setDesignTheme);
 
-  const [isDark, setIsDark] = useState<boolean>(true);
-
+  // One-time migration: pick up ?v= from URL on very first load, then clean the URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const v = params.get('v') || '4';
-    const initDark = params.get('dark');
-    
-    setVersion(v);
-    const darkBool = initDark !== null ? initDark === 'true' : nativeIsDark[v];
-    setIsDark(darkBool);
-
-    updateBodyTheme(v, darkBool);
+    const urlVersion = params.get('v');
+    if (urlVersion && ['1', '2', '3', '4'].includes(urlVersion)) {
+      setDesignTheme(`v${urlVersion}` as 'v1' | 'v2' | 'v3' | 'v4');
+      // clean URL
+      window.history.replaceState({}, '', window.location.pathname);
+    }
   }, []);
 
-  const updateBodyTheme = (v: string, dark: boolean) => {
-    // V1 and V4 are natively dark, so if they are NOT dark, we append `.light`
-    // V2 and V3 are natively light, so if they ARE dark, we append `.dark`
-    let className = `theme-v${v}`;
-    if (['1', '4'].includes(v) && !dark) {
-      className += ' light';
-    } else if (['2', '3'].includes(v) && dark) {
-      className += ' dark';
+  // Synchronise body classes whenever theme or color mode changes
+  useEffect(() => {
+    const isDark = resolveIsDark(colorMode);
+    applyBodyClasses(designTheme, isDark);
+
+    // If "system", also listen to OS preference changes
+    if (colorMode === 'system') {
+      const mql = window.matchMedia('(prefers-color-scheme: dark)');
+      const handler = (e: MediaQueryListEvent) => {
+        applyBodyClasses(designTheme, e.matches);
+      };
+      mql.addEventListener('change', handler);
+      return () => mql.removeEventListener('change', handler);
     }
-    
-    document.body.className = className;
-  };
-
-  const setV = (v: string) => {
-    const url = new URL(window.location.href);
-    url.searchParams.set('v', v);
-    
-    // reset to the native theme of that version if they don't explicitly pass dark
-    const nextDark = nativeIsDark[v];
-    url.searchParams.set('dark', String(nextDark));
-    
-    window.history.pushState({}, '', url);
-    setVersion(v);
-    setIsDark(nextDark);
-    updateBodyTheme(v, nextDark);
-  };
-
-  const toggleTheme = () => {
-    const nextDark = !isDark;
-    const url = new URL(window.location.href);
-    url.searchParams.set('dark', String(nextDark));
-    window.history.pushState({}, '', url);
-    
-    setIsDark(nextDark);
-    updateBodyTheme(version, nextDark);
-  };
+  }, [designTheme, colorMode]);
 
   const renderApp = () => {
-    switch (version) {
-      case '1': return <AppV1 />;
-      case '2': return <AppV2 />;
-      case '3': return <AppV3 />;
-      case '4': return <AppV4 />;
-      default: return <AppV4 />;
+    switch (designTheme) {
+      case 'v1': return <AppV1 />;
+      case 'v2': return <AppV2 />;
+      case 'v3': return <AppV3 />;
+      case 'v4': return <AppV4 />;
+      default:   return <AppV4 />;
     }
   };
 
   return (
     <>
-      {/* Dev Switcher UI floating at top right */}
-      <div style={{
-        position: 'fixed', top: '10px', right: '10px', zIndex: 9999,
-        background: isDark ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.8)',
-        padding: '5px', borderRadius: '8px', border: `1px solid ${isDark ? '#333' : '#e5e5e5'}`,
-        display: 'flex', gap: '5px', backdropFilter: 'blur(5px)'
-      }}>
-        {['1', '2', '3', '4'].map(v => (
-          <button 
-            key={v} 
-            onClick={() => setV(v)}
-            style={{
-              padding: '4px 8px', borderRadius: '4px', border: 'none',
-              background: version === v ? '#4F46E5' : 'transparent',
-              color: version === v ? 'white' : (isDark ? '#ccc' : '#444'), 
-              cursor: 'pointer', fontFamily: 'monospace',
-              fontSize: '12px'
-            }}
-          >
-            v{v}
-          </button>
-        ))}
-        <div style={{ width: '1px', background: isDark ? '#333' : '#e5e5e5', margin: '0 4px' }} />
-        <button 
-          onClick={toggleTheme}
-          style={{
-            padding: '4px 6px', borderRadius: '4px', border: 'none',
-            background: 'transparent', color: isDark ? '#ccc' : '#444', 
-            cursor: 'pointer', display: 'flex', alignItems: 'center'
-          }}
-          title="Toggle Dark/Light Mode"
-        >
-          {isDark ? <Sun size={14} /> : <Moon size={14} />}
-        </button>
-      </div>
-
-      <Suspense fallback={<div style={{color:'var(--text-primary)', padding:'2rem'}}>Loading version...</div>}>
+      <Suspense fallback={<div style={{color:'var(--text-primary)', padding:'2rem'}}>Loading…</div>}>
         {renderApp()}
       </Suspense>
     </>

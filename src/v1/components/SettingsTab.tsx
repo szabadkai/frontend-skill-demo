@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useStore } from '../../store/useStore';
 import { KeyRound, ShieldAlert } from 'lucide-react';
+import ThemeSwitcher from '../../components/ThemeSwitcher';
 import './SettingsTab.css';
 
 export default function SettingsTab() {
@@ -61,6 +62,13 @@ export default function SettingsTab() {
             <span>Keys are stored locally in your browser.</span>
           </div>
         </div>
+      </div>
+
+      <div className="glass-panel settings-card" style={{marginTop: '1.5rem'}}>
+        <div className="card-header">
+          <h2>Appearance</h2>
+        </div>
+        <ThemeSwitcher />
       </div>
     </div>
   );

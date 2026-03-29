@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useStore } from '../../store/useStore';
 import { ShieldAlert, ArrowRight } from 'lucide-react';
+import ThemeSwitcher from '../../components/ThemeSwitcher';
 import './SettingsTab.css';
 
 export default function SettingsTab() {
@@ -73,6 +74,11 @@ export default function SettingsTab() {
             <span className="privacy-title">Local First</span>
             <span className="privacy-desc">Keys are used exclusively to sign inference prompts locally.</span>
           </div>
+        </div>
+
+        <div style={{borderTop: '2px solid var(--surface-border)', paddingTop: '2rem', marginTop: '2rem'}}>
+          <h3 className="font-serif" style={{marginBottom: '1rem', textTransform: 'uppercase'}}>Appearance</h3>
+          <ThemeSwitcher />
         </div>
       </div>
     </div>

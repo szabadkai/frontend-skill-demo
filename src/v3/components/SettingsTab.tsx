@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useStore } from '../../store/useStore';
 import { KeyRound, ShieldCheck, Check } from 'lucide-react';
+import ThemeSwitcher from '../../components/ThemeSwitcher';
 import './SettingsTab.css';
 
 export default function SettingsTab() {
@@ -71,6 +72,15 @@ export default function SettingsTab() {
           <div className="privacy-text-stack">
             <span className="privacy-title-soft">Completely Local</span>
             <span className="privacy-desc-soft">We never upload your API key. It lives safely in your browser storage.</span>
+          </div>
+        </div>
+
+        <div className="settings-card-soft" style={{marginTop: '1rem'}}>
+          <div className="settings-card-header">
+            <h3>✨ Look & Feel</h3>
+          </div>
+          <div style={{marginTop: '1rem'}}>
+            <ThemeSwitcher />
           </div>
         </div>
       </div>

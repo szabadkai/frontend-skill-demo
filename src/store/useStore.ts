@@ -21,6 +21,9 @@ interface AppState {
   openRouterApiKey: string;
   userProfile: string;
   
+  designTheme: 'v1' | 'v2' | 'v3' | 'v4';
+  colorMode: 'system' | 'light' | 'dark';
+  
   // Actions
   addTodo: (text: string) => void;
   toggleTodo: (id: string) => void;
@@ -35,6 +38,8 @@ interface AppState {
   
   setApiKey: (key: string) => void;
   setUserProfile: (profile: string) => void;
+  setDesignTheme: (theme: 'v1' | 'v2' | 'v3' | 'v4') => void;
+  setColorMode: (mode: 'system' | 'light' | 'dark') => void;
 }
 
 export const useStore = create<AppState>()(
@@ -44,6 +49,8 @@ export const useStore = create<AppState>()(
       goals: [],
       openRouterApiKey: '',
       userProfile: '',
+      designTheme: 'v1',
+      colorMode: 'system',
       
       addTodo: (text) => set((state) => ({
         todos: [
@@ -91,6 +98,8 @@ export const useStore = create<AppState>()(
       
       setApiKey: (key) => set({ openRouterApiKey: key }),
       setUserProfile: (profile) => set({ userProfile: profile }),
+      setDesignTheme: (theme) => set({ designTheme: theme }),
+      setColorMode: (mode) => set({ colorMode: mode }),
     }),
     {
       name: 'todo-ai-storage',
