@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { useStore } from '../../store/useStore';
-import { KeyRound, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { KeyRound, ShieldCheck, Check } from 'lucide-react';
 import './SettingsTab.css';
 
 export default function SettingsTab() {
-  const { openRouterApiKey, setApiKey } = useStore();
+  const { openRouterApiKey, setApiKey, userProfile, setUserProfile } = useStore();
   const [localKey, setLocalKey] = useState(openRouterApiKey);
+  const [localProfile, setLocalProfile] = useState(userProfile);
   const [saved, setSaved] = useState(false);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     setApiKey(localKey.trim());
+    setUserProfile(localProfile);
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   };
@@ -26,14 +28,40 @@ export default function SettingsTab() {
             <h3>AI Configuration</h3>
           </div>
           
-          <p className="settings-desc-soft">To unlock the magic "Infer Goals" feature, simply pop your OpenRouter API key below.</p>
-
-          <form onSubmit={handleSave} className="api-form-soft">
-            <input type="password" className="input-bubbly" placeholder="Paste your key here... (sk-or-v1-...)"
-              value={localKey} onChange={(e) => setLocalKey(e.target.value)} />
+          <form onSubmit={handleSave} className="api-form-bubbly" style={{display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '1rem'}}>
+            <div className="input-group-soft">
+              <label className="label-bubbly">OpenRouter Secret Key</label>
+              <div className="input-with-icon-bubbly">
+                <KeyRound size={20} className="icon-bubbly" />
+                <input
+                  type="password"
+                  className="input-bubbly"
+                  placeholder="sk-or-v1-..."
+                  value={localKey}
+                  onChange={(e) => setLocalKey(e.target.value)}
+                />
+              </div>
+            </div>
             
-            <button type="submit" className="btn-bubbly w-full mt-2">
-              {saved ? <span className="btn-content"><CheckCircle2 size={24} strokeWidth={3} /> ALL SET!</span> : 'SAVE KEY'}
+            <div className="input-group-soft">
+              <label className="label-bubbly">Your Preferences / Setup</label>
+              <textarea
+                className="input-bubbly"
+                placeholder="Tell the AI about yourself so it gives better advice..."
+                value={localProfile}
+                onChange={(e) => setLocalProfile(e.target.value)}
+                style={{ minHeight: '100px', resize: 'vertical', padding: '1rem', borderRadius: 'var(--radius-main)' }}
+              />
+            </div>
+
+            <button type="submit" className="btn-bubbly" style={{ marginTop: '0.5rem' }}>
+              {saved ? (
+                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                  <Check size={20} strokeWidth={3} /> SAVED!
+                </span>
+              ) : (
+                'SAVE YOUR SETTINGS'
+              )}
             </button>
           </form>
         </div>

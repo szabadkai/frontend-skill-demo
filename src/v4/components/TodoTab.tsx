@@ -6,9 +6,12 @@ import { inferTodos } from '../../services/llm';
 import './TodoTab.css';
 
 export default function TodoTab() {
-  const { todos, goals, openRouterApiKey, addTodo, toggleTodo, deleteTodo, reorderTodos, editTodo } = useStore();
+  const { todos, goals, openRouterApiKey, userProfile, addTodo, toggleTodo, deleteTodo, reorderTodos, editTodo } = useStore();
   const [newText, setNewText] = useState('');
-  const [isInferring, setIsInferring] = useState(false);
+  
+  const [inferenceMode, setInferenceMode] = useState<'hidden' | 'select-goal' | 'loading' | 'select-tasks'>('hidden');
+  const [suggestedTasks, setSuggestedTasks] = useState<Array<{text: string, selected: boolean}>>([]);
+  
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
 
@@ -37,17 +40,36 @@ export default function TodoTab() {
     }
   };
 
-  const handleInfer = async () => {
+  const handleWandClick = () => {
     if (!openRouterApiKey) { alert('[ERROR] API KEY REQUIRED IN SYSTEM.'); return; }
-    setIsInferring(true);
+    if (goals.length === 0) { alert('[ERROR] NO TARGET OBJECTIVES.'); return; }
+    setInferenceMode('select-goal');
+  };
+
+  const handleGoalSelect = async (goalId: string) => {
+    const targetGoal = goals.find(g => g.id === goalId);
+    if (!targetGoal) return;
+    
+    setInferenceMode('loading');
+    
     try {
-        const newTodos = await inferTodos(openRouterApiKey, todos, goals);
-        newTodos.forEach(nt => addTodo(nt.text));
+      const suggestions = await inferTodos(openRouterApiKey, todos, targetGoal, userProfile || '');
+      setSuggestedTasks(suggestions.map(s => ({ text: s.text, selected: true })));
+      setInferenceMode('select-tasks');
     } catch {
-        alert('[ERROR] INFERENCE FAILED.');
-    } finally {
-        setIsInferring(false);
+      alert('[ERROR] INFERENCE FAILED.');
+      setInferenceMode('hidden');
     }
+  };
+
+  const toggleSuggestion = (index: number) => {
+    setSuggestedTasks(prev => prev.map((t, i) => i === index ? { ...t, selected: !t.selected } : t));
+  };
+
+  const handleAddSelected = () => {
+    suggestedTasks.filter(t => t.selected).forEach(t => addTodo(t.text));
+    setInferenceMode('hidden');
+    setSuggestedTasks([]);
   };
 
   const pendingCount = todos.filter(t => !t.completed).length;
@@ -72,8 +94,8 @@ export default function TodoTab() {
             onChange={(e) => setNewText(e.target.value)}
           />
           {goals.length > 0 && (
-            <button type="button" onClick={handleInfer} className="wand-btn-tech" disabled={isInferring} title="[ INFER_TASKS ]">
-              {isInferring ? <Loader2 className="spin" size={16}/> : <Cpu size={16}/>}
+            <button type="button" onClick={handleWandClick} className="wand-btn-tech" disabled={inferenceMode !== 'hidden'} title="[ INFER_TASKS ]">
+              <Cpu size={16}/>
             </button>
           )}
           <button type="submit" className="submit-btn-tech" disabled={!newText.trim()}>
@@ -81,6 +103,64 @@ export default function TodoTab() {
           </button>
         </div>
       </form>
+
+      {inferenceMode !== 'hidden' && (
+        <div className="chrome-panel inference-widget" style={{ padding: '1rem', marginTop: '1rem', border: '1px solid var(--accent)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <span className="mono-text" style={{ color: 'var(--accent)' }}>
+              {inferenceMode === 'select-goal' && '> SELECT_TARGET_OBJECTIVE'}
+              {inferenceMode === 'loading' && '> EVALUATING_HEURISTICS...'}
+              {inferenceMode === 'select-tasks' && '> REVIEW_GENERATED_TASKS'}
+            </span>
+            <button onClick={() => setInferenceMode('hidden')} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+              <X size={16} />
+            </button>
+          </div>
+
+          {inferenceMode === 'select-goal' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {goals.map(g => (
+                <button 
+                  key={g.id} 
+                  onClick={() => handleGoalSelect(g.id)}
+                  className="mono-text"
+                  style={{ textAlign: 'left', padding: '0.75rem', background: 'var(--surface-bg)', border: '1px solid var(--surface-border)', color: 'var(--text-primary)', cursor: 'pointer', display: 'flex', justifyContent: 'space-between' }}
+                >
+                  <span>{g.text}</span>
+                  <span style={{ color: 'var(--text-muted)' }}>[{g.progress}%]</span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {inferenceMode === 'loading' && (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem 0', color: 'var(--accent)' }}>
+              <Loader2 size={24} className="spin" />
+            </div>
+          )}
+
+          {inferenceMode === 'select-tasks' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {suggestedTasks.map((task, idx) => (
+                <label key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', cursor: 'pointer', padding: '0.5rem', background: task.selected ? 'rgba(99, 102, 241, 0.1)' : 'transparent', borderRadius: '4px' }}>
+                  <input 
+                    type="checkbox" 
+                    checked={task.selected} 
+                    onChange={() => toggleSuggestion(idx)}
+                    style={{ marginTop: '0.25rem' }} 
+                  />
+                  <span className="mono-text" style={{ color: task.selected ? 'var(--text-primary)' : 'var(--text-muted)' }}>{task.text}</span>
+                </label>
+              ))}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+                <button onClick={handleAddSelected} className="submit-btn-tech mono-text" style={{ border: '1px solid var(--accent)', padding: '0.5rem 1rem' }} disabled={!suggestedTasks.some(t => t.selected)}>
+                  [ COMMIT_SELECTED ]
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="todos-wrapper-tech">
         <div className="list-header-tech mono-text">

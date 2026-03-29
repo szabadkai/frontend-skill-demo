@@ -19,6 +19,7 @@ interface AppState {
   todos: Todo[];
   goals: Goal[];
   openRouterApiKey: string;
+  userProfile: string;
   
   // Actions
   addTodo: (text: string) => void;
@@ -33,6 +34,7 @@ interface AppState {
   setGoals: (goals: Goal[]) => void; // Used for LLM replacing goals
   
   setApiKey: (key: string) => void;
+  setUserProfile: (profile: string) => void;
 }
 
 export const useStore = create<AppState>()(
@@ -41,6 +43,7 @@ export const useStore = create<AppState>()(
       todos: [],
       goals: [],
       openRouterApiKey: '',
+      userProfile: '',
       
       addTodo: (text) => set((state) => ({
         todos: [
@@ -87,6 +90,7 @@ export const useStore = create<AppState>()(
       setGoals: (goals) => set({ goals }),
       
       setApiKey: (key) => set({ openRouterApiKey: key }),
+      setUserProfile: (profile) => set({ userProfile: profile }),
     }),
     {
       name: 'todo-ai-storage',

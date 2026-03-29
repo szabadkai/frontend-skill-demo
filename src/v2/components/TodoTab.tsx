@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { Reorder, AnimatePresence, motion } from 'framer-motion';
 import { useStore } from '../../store/useStore';
-import { X, ArrowUpRight, ArrowRight, Loader2, Wand2 } from 'lucide-react';
+import { X, ArrowUpRight, Loader2, Wand2, CheckSquare } from 'lucide-react';
 import { inferTodos } from '../../services/llm';
 import './TodoTab.css';
 
 export default function TodoTab() {
-  const { todos, goals, openRouterApiKey, addTodo, toggleTodo, deleteTodo, reorderTodos, editTodo } = useStore();
+  const { todos, goals, openRouterApiKey, userProfile, addTodo, toggleTodo, deleteTodo, reorderTodos, editTodo } = useStore();
   const [newText, setNewText] = useState('');
-  const [isInferring, setIsInferring] = useState(false);
+  
+  const [inferenceMode, setInferenceMode] = useState<'hidden' | 'select-goal' | 'loading' | 'select-tasks'>('hidden');
+  const [suggestedTasks, setSuggestedTasks] = useState<Array<{text: string, selected: boolean}>>([]);
+  
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
 
@@ -37,17 +40,36 @@ export default function TodoTab() {
     }
   };
 
-  const handleInfer = async () => {
-    if (!openRouterApiKey) { alert('API key required in System.'); return; }
-    setIsInferring(true);
+  const handleWandClick = () => {
+    if (!openRouterApiKey) { alert('API key required.'); return; }
+    if (goals.length === 0) { alert('No objectives found.'); return; }
+    setInferenceMode('select-goal');
+  };
+
+  const handleGoalSelect = async (goalId: string) => {
+    const targetGoal = goals.find(g => g.id === goalId);
+    if (!targetGoal) return;
+    
+    setInferenceMode('loading');
+    
     try {
-        const newTodos = await inferTodos(openRouterApiKey, todos, goals);
-        newTodos.forEach(nt => addTodo(nt.text));
+      const suggestions = await inferTodos(openRouterApiKey, todos, targetGoal, userProfile || '');
+      setSuggestedTasks(suggestions.map(s => ({ text: s.text, selected: true })));
+      setInferenceMode('select-tasks');
     } catch {
-        alert('Failed to infer items.');
-    } finally {
-        setIsInferring(false);
+      alert('Failed to generate steps.');
+      setInferenceMode('hidden');
     }
+  };
+
+  const toggleSuggestion = (index: number) => {
+    setSuggestedTasks(prev => prev.map((t, i) => i === index ? { ...t, selected: !t.selected } : t));
+  };
+
+  const handleAddSelected = () => {
+    suggestedTasks.filter(t => t.selected).forEach(t => addTodo(t.text));
+    setInferenceMode('hidden');
+    setSuggestedTasks([]);
   };
 
   const pendingCount = todos.filter(t => !t.completed).length;
@@ -70,8 +92,8 @@ export default function TodoTab() {
             style={{ paddingRight: goals.length > 0 ? '70px' : '36px' }}
           />
           {goals.length > 0 && (
-            <button type="button" onClick={handleInfer} className="wand-btn-editorial" disabled={isInferring} title="Suggest steps">
-              {isInferring ? <Loader2 className="spin" size={16}/> : <Wand2 size={16}/>}
+            <button type="button" onClick={handleWandClick} className="wand-btn-editorial" disabled={inferenceMode !== 'hidden'} title="Suggest steps">
+              <Wand2 size={16}/>
             </button>
           )}
           <button type="submit" className="circle-btn submit-btn" disabled={!newText.trim()}>
@@ -79,6 +101,68 @@ export default function TodoTab() {
           </button>
         </div>
       </form>
+
+      {inferenceMode !== 'hidden' && (
+        <div style={{ border: '2px solid var(--text-primary)', borderTop: 'none', padding: '1.5rem', background: 'var(--surface-bg)', marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', borderBottom: '2px solid var(--text-primary)', paddingBottom: '0.75rem', marginBottom: '1.25rem', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <h3 className="font-serif" style={{ fontSize: '1.25rem', margin: 0, textTransform: 'uppercase' }}>
+              {inferenceMode === 'select-goal' && 'Select Objective'}
+              {inferenceMode === 'loading' && 'Consulting AI...'}
+              {inferenceMode === 'select-tasks' && 'Proposed Steps'}
+            </h3>
+            <button onClick={() => setInferenceMode('hidden')} style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>
+              <X size={20} />
+            </button>
+          </div>
+
+          {inferenceMode === 'select-goal' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {goals.map(g => (
+                <button 
+                  key={g.id} 
+                  onClick={() => handleGoalSelect(g.id)}
+                  className="font-sans"
+                  style={{ textAlign: 'left', padding: '1rem', background: 'transparent', border: '1px solid var(--surface-border)', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', textTransform: 'uppercase', letterSpacing: '0.5px' }}
+                  onMouseOver={(e) => { e.currentTarget.style.background = 'var(--text-primary)'; e.currentTarget.style.color = 'var(--bg-color)' }}
+                  onMouseOut={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'inherit' }}
+                >
+                  <span style={{ fontWeight: 600 }}>{g.text}</span>
+                  <span>{g.progress}%</span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {inferenceMode === 'loading' && (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem 0' }}>
+              <Loader2 size={32} className="spin" />
+            </div>
+          )}
+
+          {inferenceMode === 'select-tasks' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {suggestedTasks.map((task, idx) => (
+                <label key={idx} className="font-sans" style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', cursor: 'pointer', padding: '0.75rem', border: task.selected ? '2px solid var(--text-primary)' : '1px solid var(--surface-border)' }}>
+                  <input 
+                    type="checkbox" 
+                    checked={task.selected} 
+                    onChange={() => toggleSuggestion(idx)}
+                    style={{ marginTop: '0.2rem', width: '1.2rem', height: '1.2rem', accentColor: 'var(--text-primary)' }} 
+                  />
+                  <span style={{ fontSize: '1.1rem', fontWeight: task.selected ? 600 : 400 }}>{task.text}</span>
+                </label>
+              ))}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.5rem' }}>
+                <button onClick={handleAddSelected} className="btn-brutal font-sans" disabled={!suggestedTasks.some(t => t.selected)}>
+                  <span className="btn-content" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <CheckSquare size={16} /> ADD ALL SELECTED
+                  </span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="todos-wrapper">
         <Reorder.Group axis="y" values={todos} onReorder={reorderTodos} className="todo-list">

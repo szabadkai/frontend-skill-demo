@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { useStore } from '../../store/useStore';
-import { KeyRound, ShieldAlert, TerminalSquare } from 'lucide-react';
+import { KeyRound, ShieldAlert, TerminalSquare, User } from 'lucide-react';
 import './SettingsTab.css';
 
 export default function SettingsTab() {
-  const { openRouterApiKey, setApiKey } = useStore();
+  const { openRouterApiKey, setApiKey, userProfile, setUserProfile } = useStore();
   const [localKey, setLocalKey] = useState(openRouterApiKey);
+  const [localProfile, setLocalProfile] = useState(userProfile);
   const [saved, setSaved] = useState(false);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     setApiKey(localKey.trim());
+    setUserProfile(localProfile);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -22,7 +24,6 @@ export default function SettingsTab() {
       </div>
       
       <div className="settings-content-tech">
-        
         <div className="config-card-tech chrome-panel">
           <div className="config-card-header">
             <TerminalSquare size={16} className="text-muted" />
@@ -34,28 +35,30 @@ export default function SettingsTab() {
           </p>
 
           <form onSubmit={handleSave} className="api-form-tech">
-            <div className="input-with-icon-tech">
-              <KeyRound size={16} className="input-icon-tech" />
+            <div className="input-group-tech" style={{marginBottom: '1rem'}}>
+              <label className="mono-text label-tech"><KeyRound size={12} /> API_KEY</label>
               <input
-                id="api-key"
                 type="password"
-                className="input-tech font-mono"
+                className="input-tech mono-text"
                 placeholder="sk-or-v1-..."
                 value={localKey}
                 onChange={(e) => setLocalKey(e.target.value)}
               />
             </div>
             
-            <button type="submit" className="btn-tech w-full config-submit">
-              {saved ? (
-                <span className="btn-content-tech text-success">
-                  &gt; CONFIG_SAVED_OK
-                </span>
-              ) : (
-                <span className="btn-content-tech">
-                  &gt; UPDATE_KEY
-                </span>
-              )}
+            <div className="input-group-tech" style={{marginBottom: '1.5rem'}}>
+              <label className="mono-text label-tech"><User size={12} /> USER_PROFILE_PAYLOAD</label>
+              <textarea
+                className="input-tech mono-text"
+                placeholder="System context payload..."
+                value={localProfile}
+                onChange={(e) => setLocalProfile(e.target.value)}
+                style={{ minHeight: '80px', resize: 'vertical' }}
+              />
+            </div>
+
+            <button type="submit" className="submit-btn-tech w-full mono-text" style={{ border: '1px solid var(--accent)' }}>
+              {saved ? '[ OK_SAVED ]' : '[ WRITE_CFG ]'}
             </button>
           </form>
         </div>

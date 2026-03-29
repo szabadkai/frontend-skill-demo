@@ -90,7 +90,8 @@ Output ONLY the JSON array.
 export async function inferTodos(
   apiKey: string,
   todos: Todo[],
-  currentGoals: Goal[]
+  targetGoal: Goal,
+  userProfile: string
 ): Promise<Array<{ text: string }>> {
   if (!apiKey) {
     throw new Error("OpenRouter API Key is missing.");
@@ -98,13 +99,13 @@ export async function inferTodos(
 
   // To save tokens, we only send essential data
   const todoSummary = todos.map(t => `- [${t.completed ? 'x' : ' '}] ${t.text}`).join('\n');
-  const goalSummary = currentGoals.map(g => `- ${g.text} (Progress: ${g.progress}%)`).join('\n');
+  const contextBlock = userProfile.trim() ? `User Profile / Context:\n${userProfile}\n` : '';
 
   const systemPrompt = `
 You are an intelligent task-planning assistant.
-Look at the user's current Goals and existing Todos.
-Your task is to infer 2 to 4 NEW small, actionable tasks (Todos) that will help the user make progress towards their Goals.
-Do NOT suggest tasks they've already completed or listed.
+Your task is to infer 3 to 5 NEW small, actionable micro-tasks (Todos) that will specifically help the user make progress towards the primary Target Goal provided.
+Do NOT suggest tasks they've already completed or listed in their Current Todos.
+Keep tasks very actionable, concise, and short (under 6 words if possible).
 
 Output your answer EXACTLY as a raw JSON array of objects, with no markdown formatting. Do not include \`\`\`json.
 Each object must have exactly one field: "text" (string - the strict action item).
@@ -113,11 +114,12 @@ Example:
 `;
 
   const userPrompt = `
-Current Goals:
-${goalSummary}
+${contextBlock}
+Target Goal:
+- ${targetGoal.text} (Progress: ${targetGoal.progress}%)
 
-Current Todos:
-${todoSummary}
+Current Todos (Do not duplicate these):
+${todoSummary || '(No current tasks)'}
 
 Output ONLY the JSON array.
   `;
