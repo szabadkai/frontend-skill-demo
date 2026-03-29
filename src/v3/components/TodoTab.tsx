@@ -5,8 +5,27 @@ import { Plus, X, Check, GripVertical } from 'lucide-react';
 import './TodoTab.css';
 
 export default function TodoTab() {
-  const { todos, addTodo, toggleTodo, deleteTodo, reorderTodos } = useStore();
+  const { todos, addTodo, toggleTodo, deleteTodo, reorderTodos, editTodo } = useStore();
   const [newText, setNewText] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editText, setEditText] = useState('');
+
+  const handleEditStart = (id: string, text: string) => {
+    setEditingId(id);
+    setEditText(text);
+  };
+
+  const handleEditSubmit = () => {
+    if (editingId && editText.trim()) {
+      editTodo(editingId, editText.trim());
+    }
+    setEditingId(null);
+  };
+  
+  const handleEditKey = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleEditSubmit();
+    if (e.key === 'Escape') setEditingId(null);
+  };
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,7 +85,25 @@ export default function TodoTab() {
                       )}
                     </AnimatePresence>
                   </button>
-                  <span className="todo-text-soft">{todo.text}</span>
+                  {editingId === todo.id ? (
+                    <input
+                      autoFocus
+                      className="input-bubbly"
+                      style={{ flex: 1, padding: '0.25rem 1rem' }}
+                      value={editText}
+                      onChange={e => setEditText(e.target.value)}
+                      onBlur={handleEditSubmit}
+                      onKeyDown={handleEditKey}
+                    />
+                  ) : (
+                    <span 
+                      className="todo-text-soft" 
+                      onDoubleClick={() => handleEditStart(todo.id, todo.text)}
+                      style={{ cursor: 'text' }}
+                    >
+                      {todo.text}
+                    </span>
+                  )}
                   <button className="delete-btn-soft" onClick={() => deleteTodo(todo.id)}>
                     <X size={18} strokeWidth={2.5} />
                   </button>

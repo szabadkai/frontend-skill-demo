@@ -23,6 +23,7 @@ interface AppState {
   // Actions
   addTodo: (text: string) => void;
   toggleTodo: (id: string) => void;
+  editTodo: (id: string, newText: string) => void;
   deleteTodo: (id: string) => void;
   reorderTodos: (todos: Todo[]) => void;
   
@@ -51,6 +52,12 @@ export const useStore = create<AppState>()(
       toggleTodo: (id) => set((state) => ({
         todos: state.todos.map(todo => 
           todo.id === id ? { ...todo, completed: !todo.completed } : todo
+        )
+      })),
+      
+      editTodo: (id, text) => set((state) => ({
+        todos: state.todos.map(todo =>
+          todo.id === id ? { ...todo, text } : todo
         )
       })),
       

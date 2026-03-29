@@ -5,8 +5,27 @@ import { CornerDownLeft, X, Check, GripVertical } from 'lucide-react';
 import './TodoTab.css';
 
 export default function TodoTab() {
-  const { todos, addTodo, toggleTodo, deleteTodo, reorderTodos } = useStore();
+  const { todos, addTodo, toggleTodo, deleteTodo, reorderTodos, editTodo } = useStore();
   const [newText, setNewText] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editText, setEditText] = useState('');
+
+  const handleEditStart = (id: string, text: string) => {
+    setEditingId(id);
+    setEditText(text);
+  };
+
+  const handleEditSubmit = () => {
+    if (editingId && editText.trim()) {
+      editTodo(editingId, editText.trim());
+    }
+    setEditingId(null);
+  };
+  
+  const handleEditKey = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleEditSubmit();
+    if (e.key === 'Escape') setEditingId(null);
+  };
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,9 +120,25 @@ export default function TodoTab() {
                     </AnimatePresence>
                   </button>
                   
-                  <span className={`todo-text-tech ${todo.completed ? 'mono-text' : ''}`}>
-                    {todo.text}
-                  </span>
+                  {editingId === todo.id ? (
+                    <input
+                      autoFocus
+                      className="input-tech"
+                      style={{ flex: 1, padding: '0.25rem 0.5rem' }}
+                      value={editText}
+                      onChange={e => setEditText(e.target.value)}
+                      onBlur={handleEditSubmit}
+                      onKeyDown={handleEditKey}
+                    />
+                  ) : (
+                    <span 
+                      className={`todo-text-tech ${todo.completed ? 'mono-text' : ''}`} 
+                      onDoubleClick={() => handleEditStart(todo.id, todo.text)}
+                      style={{ cursor: 'text' }}
+                    >
+                      {todo.text}
+                    </span>
+                  )}
                   
                   <button className="delete-btn-tech" onClick={() => deleteTodo(todo.id)}>
                     <X size={14} strokeWidth={2} />
