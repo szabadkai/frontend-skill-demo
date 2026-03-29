@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { flushSync } from 'react-dom';
+import { motion } from 'framer-motion';
 import { useDrag } from '@use-gesture/react';
 import { CheckCircle2, Target, Settings } from 'lucide-react';
 import TodoTab from './components/TodoTab';
@@ -11,10 +12,24 @@ import './App.css';
 type TabType = 'todos' | 'goals' | 'settings';
 
 function App() {
-  const [[activeTab, direction], setTab] = useState<[TabType, number]>(['todos', 0]);
+  const [[activeTab], setTab] = useState<[TabType, number]>(['todos', 0]);
 
   const changeTab = (newTab: TabType, dir: number) => {
-    setTab([newTab, dir]);
+    if (!document.startViewTransition) {
+      setTab([newTab, dir]);
+      return;
+    }
+
+    document.documentElement.classList.remove('back-transition');
+    if (dir < 0) {
+      document.documentElement.classList.add('back-transition');
+    }
+
+    document.startViewTransition(() => {
+      flushSync(() => {
+        setTab([newTab, dir]);
+      });
+    });
   };
 
   const tabs = [
@@ -31,26 +46,6 @@ function App() {
       changeTab(tabs[currentIndex - 1].id, -1);
     }
   }, { swipe: { distance: 40, velocity: 0.3 } });
-
-  const slideVariants = {
-    enter: (dir: number) => ({
-      x: dir > 0 ? 100 : -100,
-      opacity: 0,
-      scale: 0.98
-    }),
-    center: {
-      zIndex: 1,
-      x: 0,
-      opacity: 1,
-      scale: 1
-    },
-    exit: (dir: number) => ({
-      zIndex: 0,
-      x: dir < 0 ? 100 : -100,
-      opacity: 0,
-      scale: 0.98
-    })
-  };
 
   return (
     <div className="app glass-bg">
@@ -84,22 +79,12 @@ function App() {
           })}
         </div>
 
-        <div className="tab-content" style={{ overflowX: 'hidden' }}>
-          <AnimatePresence mode="wait" initial={false} custom={direction}>
-            <motion.div
-              key={activeTab}
-              custom={direction}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-            >
-              {activeTab === 'todos' && <TodoTab />}
-              {activeTab === 'goals' && <GoalsTab />}
-              {activeTab === 'settings' && <SettingsTab />}
-            </motion.div>
-          </AnimatePresence>
+        <div className="tab-content">
+          <div className="vt-tab-container">
+            {activeTab === 'todos' && <TodoTab />}
+            {activeTab === 'goals' && <GoalsTab />}
+            {activeTab === 'settings' && <SettingsTab />}
+          </div>
         </div>
       </main>
     </div>

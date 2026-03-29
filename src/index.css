@@ -195,3 +195,54 @@ body.theme-v4.dark .chrome-panel {
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--surface-border); border-radius: 4px; }
+
+/* ========================================= */
+/* Global View Transition Animations         */
+/* ========================================= */
+.vt-tab-container {
+  view-transition-name: tab-content;
+  height: 100%;
+}
+
+::view-transition-old(tab-content),
+::view-transition-new(tab-content) {
+  animation-duration: 0.35s;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation-fill-mode: both;
+}
+
+/* Default: Navigating Forward (Right) */
+::view-transition-old(tab-content) {
+  animation-name: slide-out-left;
+}
+::view-transition-new(tab-content) {
+  animation-name: slide-in-right;
+}
+
+/* Navigating Backward (Left) */
+html.back-transition ::view-transition-old(tab-content) {
+  animation-name: slide-out-right;
+}
+html.back-transition ::view-transition-new(tab-content) {
+  animation-name: slide-in-left;
+}
+
+@keyframes slide-in-right {
+  from { transform: translateX(100px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slide-out-left {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(-100px); opacity: 0; }
+}
+
+@keyframes slide-in-left {
+  from { transform: translateX(-100px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slide-out-right {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100px); opacity: 0; }
+}
