@@ -96,6 +96,9 @@ export const useStore = create<AppState>()(
       setUser: (user) => {
         set({ user });
         if (user) {
+          if (user.user_metadata?.userProfile) {
+            set({ userProfile: user.user_metadata.userProfile });
+          }
           get().fetchLists();
         } else {
           set({ lists: [], activeList: null, todos: [], goals: [] });
@@ -258,7 +261,13 @@ export const useStore = create<AppState>()(
       setGoals: (goals) => set({ goals }),
       
       setApiKey: (key) => set({ openRouterApiKey: key }),
-      setUserProfile: (profile) => set({ userProfile: profile }),
+      setUserProfile: async (profile) => {
+        set({ userProfile: profile });
+        const user = get().user;
+        if (user) {
+          await supabase.auth.updateUser({ data: { userProfile: profile } });
+        }
+      },
       setDesignTheme: (theme) => set({ designTheme: theme }),
       setColorMode: (mode) => set({ colorMode: mode }),
     }),
