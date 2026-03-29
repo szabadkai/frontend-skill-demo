@@ -4,6 +4,7 @@ import { Check, Target, Settings2 } from 'lucide-react';
 import TodoTab from './components/TodoTab';
 import GoalsTab from './components/GoalsTab';
 import SettingsTab from './components/SettingsTab';
+import UserMenu from '../components/UserMenu';
 import './App.css';
 
 type TabType = 'todos' | 'goals' | 'settings';
@@ -19,11 +20,12 @@ function App() {
 
   return (
     <div className="app-container app-editorial">
-      <header className="app-header-editorial">
+      <header className="app-header-editorial" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div className="title-stack">
           <h1 className="header-title font-serif">Objectives</h1>
           <span className="header-subtitle font-sans">Vol. I — Daily</span>
         </div>
+        <UserMenu />
       </header>
       
       <main className="main-content-editorial">

@@ -4,6 +4,7 @@ import { CheckCircle2, PieChart, Settings } from 'lucide-react';
 import TodoTab from './components/TodoTab';
 import GoalsTab from './components/GoalsTab';
 import SettingsTab from './components/SettingsTab';
+import UserMenu from '../components/UserMenu';
 import './App.css';
 
 type TabType = 'todos' | 'goals' | 'settings';
@@ -19,9 +20,12 @@ function App() {
 
   return (
     <div className="app-container app-playful">
-      <header className="app-header-soft">
-        <h1 className="header-title-soft">Welcome back! 👋</h1>
-        <p className="app-subtitle-soft">Let's get things done today.</p>
+      <header className="app-header-soft" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <h1 className="header-title-soft">Welcome back! 👋</h1>
+          <p className="app-subtitle-soft">Let's get things done today.</p>
+        </div>
+        <UserMenu />
       </header>
       
       <main className="main-content-soft">

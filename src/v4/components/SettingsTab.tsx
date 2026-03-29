@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useStore } from '../../store/useStore';
 import { KeyRound, ShieldAlert, TerminalSquare, User } from 'lucide-react';
 import ThemeSwitcher from '../../components/ThemeSwitcher';
@@ -9,6 +9,9 @@ export default function SettingsTab() {
   const [localKey, setLocalKey] = useState(openRouterApiKey);
   const [localProfile, setLocalProfile] = useState(userProfile);
   const [saved, setSaved] = useState(false);
+
+  useEffect(() => { setLocalKey(openRouterApiKey); }, [openRouterApiKey]);
+  useEffect(() => { setLocalProfile(userProfile); }, [userProfile]);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();

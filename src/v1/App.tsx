@@ -4,6 +4,7 @@ import { CheckCircle2, Target, Settings } from 'lucide-react';
 import TodoTab from './components/TodoTab';
 import GoalsTab from './components/GoalsTab';
 import SettingsTab from './components/SettingsTab';
+import UserMenu from '../components/UserMenu';
 import './App.css';
 
 type TabType = 'todos' | 'goals' | 'settings';
@@ -19,8 +20,9 @@ function App() {
 
   return (
     <div className="app glass-bg">
-      <header className="app-header">
+      <header className="app-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1>GoalMaster AI</h1>
+        <UserMenu />
       </header>
 
       <main className="main-content">

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Reorder, AnimatePresence, motion } from 'framer-motion';
 import { useStore } from '../../store/useStore';
 import { CornerDownLeft, X, Check, GripVertical, Loader2, Cpu } from 'lucide-react';
+import AutocompleteInput from '../../components/AutocompleteInput';
+import ParsedText from '../../components/ParsedText';
 import { inferTodos } from '../../services/llm';
 import './TodoTab.css';
 
@@ -27,10 +29,7 @@ export default function TodoTab() {
     setEditingId(null);
   };
   
-  const handleEditKey = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') handleEditSubmit();
-    if (e.key === 'Escape') setEditingId(null);
-  };
+
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +53,8 @@ export default function TodoTab() {
     
     try {
       const suggestions = await inferTodos(openRouterApiKey, todos, targetGoal, userProfile || '');
-      setSuggestedTasks(suggestions.map(s => ({ text: s.text, selected: true })));
+      const tag = `@${targetGoal.text.replace(/\s+/g, '')}`;
+      setSuggestedTasks(suggestions.map(s => ({ text: `${s.text} ${tag}`, selected: true })));
       setInferenceMode('select-tasks');
     } catch {
       alert('[ERROR] INFERENCE FAILED.');
@@ -86,12 +86,17 @@ export default function TodoTab() {
       <form onSubmit={handleAdd} className="add-form-tech">
         <div className="input-wrap-tech">
           <span className="prompt-symbol mono-text">&gt;</span>
-          <input
-            type="text"
+          <AutocompleteInput
             className="input-tech prompt-input"
             placeholder="enter_task_string..."
             value={newText}
-            onChange={(e) => setNewText(e.target.value)}
+            onChange={setNewText}
+            onSubmit={() => {
+              if (newText.trim()) {
+                addTodo(newText.trim());
+                setNewText('');
+              }
+            }}
           />
           {goals.length > 0 && (
             <button type="button" onClick={handleWandClick} className="wand-btn-tech" disabled={inferenceMode !== 'hidden'} title="[ INFER_TASKS ]">
@@ -221,14 +226,14 @@ export default function TodoTab() {
                   </button>
                   
                   {editingId === todo.id ? (
-                    <input
+                    <AutocompleteInput
                       autoFocus
                       className="input-tech"
                       style={{ flex: 1, padding: '0.25rem 0.5rem' }}
                       value={editText}
-                      onChange={e => setEditText(e.target.value)}
+                      onChange={setEditText}
                       onBlur={handleEditSubmit}
-                      onKeyDown={handleEditKey}
+                      onSubmit={handleEditSubmit}
                     />
                   ) : (
                     <span 
@@ -236,7 +241,7 @@ export default function TodoTab() {
                       onDoubleClick={() => handleEditStart(todo.id, todo.text)}
                       style={{ cursor: 'text' }}
                     >
-                      {todo.text}
+                      <ParsedText text={todo.text} />
                     </span>
                   )}
                   

@@ -1,5 +1,7 @@
 import React, { useEffect, Suspense } from 'react';
 import { useStore } from './store/useStore';
+import { supabase } from './supabaseClient';
+import AuthScreen from './components/AuthScreen';
 
 // Dynamically import versions so CSS chunks don't aggressively collide
 const AppV1 = React.lazy(() => import('./v1/App'));
@@ -48,6 +50,21 @@ function MainRouter() {
   const designTheme = useStore(s => s.designTheme);
   const colorMode = useStore(s => s.colorMode);
   const setDesignTheme = useStore(s => s.setDesignTheme);
+  const user = useStore(s => s.user);
+  const setUser = useStore(s => s.setUser);
+
+  // Setup Supabase Auth Listener
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // One-time migration: pick up ?v= from URL on very first load, then clean the URL
   useEffect(() => {
@@ -85,6 +102,10 @@ function MainRouter() {
       default:   return <AppV4 />;
     }
   };
+
+  if (!user) {
+    return <AuthScreen />;
+  }
 
   return (
     <>

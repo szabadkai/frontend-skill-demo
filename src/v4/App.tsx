@@ -4,6 +4,7 @@ import { SquareTerminal, Database, Settings2 } from 'lucide-react';
 import TodoTab from './components/TodoTab';
 import GoalsTab from './components/GoalsTab';
 import SettingsTab from './components/SettingsTab';
+import UserMenu from '../components/UserMenu';
 import './App.css';
 
 type TabType = 'todos' | 'goals' | 'settings';
@@ -19,10 +20,12 @@ function App() {
 
   return (
     <div className="app-container app-tech">
-      <header className="app-header-tech">
-        <div className="status-dot"></div>
-        <h1 className="header-title-tech">Workspace</h1>
-        <div className="header-meta mono-text">V0.2.1 • ONLINE</div>
+      <header className="app-header-tech" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <UserMenu />
+          <h1 className="header-title-tech" style={{ margin: 0 }}>Workspace</h1>
+          <div className="header-meta mono-text" style={{ marginLeft: '0.5rem' }}>V0.2.1 • ONLINE</div>
+        </div>
       </header>
       
       <main className="main-content-tech">

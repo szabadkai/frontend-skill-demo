@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Reorder, AnimatePresence, motion } from 'framer-motion';
 import { useStore } from '../../store/useStore';
 import { Plus, Trash2, Check, GripVertical, Loader2, Wand2, X } from 'lucide-react';
+import AutocompleteInput from '../../components/AutocompleteInput';
+import ParsedText from '../../components/ParsedText';
 import { inferTodos } from '../../services/llm';
 import './TodoTab.css';
 
@@ -27,10 +29,7 @@ export default function TodoTab() {
     setEditingId(null);
   };
   
-  const handleEditKey = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') handleEditSubmit();
-    if (e.key === 'Escape') setEditingId(null);
-  };
+
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +53,8 @@ export default function TodoTab() {
     
     try {
       const suggestions = await inferTodos(openRouterApiKey, todos, targetGoal, userProfile || '');
-      setSuggestedTasks(suggestions.map(s => ({ text: s.text, selected: true })));
+      const tag = `@${targetGoal.text.replace(/\s+/g, '')}`;
+      setSuggestedTasks(suggestions.map(s => ({ text: `${s.text} ${tag}`, selected: true })));
       setInferenceMode('select-tasks');
     } catch {
       alert('Failed to generate tasks.');
@@ -76,12 +76,17 @@ export default function TodoTab() {
     <div className="tab-container todo-v1">
       <form onSubmit={handleAdd} className="add-form glass-panel">
         <div style={{position: 'relative', flex: 1}}>
-          <input
-            type="text"
+          <AutocompleteInput
             className="input-glass"
             placeholder="What needs to be done?"
             value={newText}
-            onChange={(e) => setNewText(e.target.value)}
+            onChange={setNewText}
+            onSubmit={() => {
+              if (newText.trim()) {
+                addTodo(newText.trim());
+                setNewText('');
+              }
+            }}
             style={{ paddingRight: goals.length > 0 ? '48px' : '1.25rem' }}
           />
           {goals.length > 0 && (
@@ -185,14 +190,14 @@ export default function TodoTab() {
                   </motion.div>
                 </button>
                 {editingId === todo.id ? (
-                  <input
+                  <AutocompleteInput
                     autoFocus
                     className="input-glass"
                     style={{ flex: 1, padding: '0.5rem 1rem' }}
                     value={editText}
-                    onChange={e => setEditText(e.target.value)}
+                    onChange={setEditText}
                     onBlur={handleEditSubmit}
-                    onKeyDown={handleEditKey}
+                    onSubmit={handleEditSubmit}
                   />
                 ) : (
                   <span 
@@ -200,7 +205,7 @@ export default function TodoTab() {
                     onDoubleClick={() => handleEditStart(todo.id, todo.text)}
                     style={{ cursor: 'text' }}
                   >
-                    {todo.text}
+                    <ParsedText text={todo.text} />
                   </span>
                 )}
                 <button className="del-btn" onClick={() => deleteTodo(todo.id)}>

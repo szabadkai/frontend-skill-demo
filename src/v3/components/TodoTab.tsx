@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Reorder, AnimatePresence, motion } from 'framer-motion';
 import { useStore } from '../../store/useStore';
 import { Plus, X, Check, GripVertical, Loader2, Wand2, ListPlus } from 'lucide-react';
+import AutocompleteInput from '../../components/AutocompleteInput';
+import ParsedText from '../../components/ParsedText';
 import { inferTodos } from '../../services/llm';
 import './TodoTab.css';
 
@@ -27,10 +29,7 @@ export default function TodoTab() {
     setEditingId(null);
   };
   
-  const handleEditKey = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') handleEditSubmit();
-    if (e.key === 'Escape') setEditingId(null);
-  };
+
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +53,8 @@ export default function TodoTab() {
     
     try {
       const suggestions = await inferTodos(openRouterApiKey, todos, targetGoal, userProfile || '');
-      setSuggestedTasks(suggestions.map(s => ({ text: s.text, selected: true })));
+      const tag = `@${targetGoal.text.replace(/\s+/g, '')}`;
+      setSuggestedTasks(suggestions.map(s => ({ text: `${s.text} ${tag}`, selected: true })));
       setInferenceMode('select-tasks');
     } catch {
       alert('Oops! The magic fizzled out. Try again!');
@@ -87,12 +87,17 @@ export default function TodoTab() {
 
       <form onSubmit={handleAdd} className="add-form-bubbly">
         <div className="input-wrap-bubbly">
-          <input
-            type="text"
+          <AutocompleteInput
             className="input-bubbly-main"
             placeholder="Add a fun new task!"
             value={newText}
-            onChange={(e) => setNewText(e.target.value)}
+            onChange={setNewText}
+            onSubmit={() => {
+              if (newText.trim()) {
+                addTodo(newText.trim());
+                setNewText('');
+              }
+            }}
             style={{ paddingRight: goals.length > 0 ? '5rem' : '3.5rem' }}
           />
           {goals.length > 0 && (
@@ -196,14 +201,14 @@ export default function TodoTab() {
                     </AnimatePresence>
                   </button>
                   {editingId === todo.id ? (
-                    <input
+                    <AutocompleteInput
                       autoFocus
                       className="input-bubbly"
                       style={{ flex: 1, padding: '0.25rem 1rem' }}
                       value={editText}
-                      onChange={e => setEditText(e.target.value)}
+                      onChange={setEditText}
                       onBlur={handleEditSubmit}
-                      onKeyDown={handleEditKey}
+                      onSubmit={handleEditSubmit}
                     />
                   ) : (
                     <span 
@@ -211,7 +216,7 @@ export default function TodoTab() {
                       onDoubleClick={() => handleEditStart(todo.id, todo.text)}
                       style={{ cursor: 'text' }}
                     >
-                      {todo.text}
+                      <ParsedText text={todo.text} />
                     </span>
                   )}
                   <button className="delete-btn-soft" onClick={() => deleteTodo(todo.id)}>
