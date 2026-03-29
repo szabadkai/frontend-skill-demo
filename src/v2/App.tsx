@@ -12,9 +12,16 @@ import './App.css';
 type TabType = 'todos' | 'goals' | 'settings';
 
 function App() {
-  const [[activeTab], setTab] = useState<[TabType, number]>(['todos', 0]);
+  const [[activeTab], setTab] = useState<[TabType, number]>(() => {
+    const saved = localStorage.getItem('lastActiveTab') as TabType;
+    if (saved === 'todos' || saved === 'goals' || saved === 'settings') {
+      return [saved, 0];
+    }
+    return ['todos', 0];
+  });
 
   const changeTab = (newTab: TabType, dir: number) => {
+    localStorage.setItem('lastActiveTab', newTab);
     if (!document.startViewTransition) {
       setTab([newTab, dir]);
       return;

@@ -14,14 +14,16 @@ export default function ParsedText({ text }: Props) {
         if (part.startsWith('#')) {
           return (
             <span key={i} style={{ 
-              background: 'var(--accent)', 
-              color: '#fff', 
-              padding: '0.1rem 0.4rem', 
+              background: 'color-mix(in srgb, var(--accent) 15%, transparent)', 
+              color: 'var(--accent)', 
+              padding: '0.15rem 0.5rem', 
               borderRadius: '999px',
               fontSize: '0.75rem',
-              fontWeight: 600,
+              fontWeight: 700,
               marginLeft: '0.2rem',
-              marginRight: '0.2rem'
+              marginRight: '0.2rem',
+              display: 'inline-block',
+              transform: 'translateY(-1px)'
             }}>
               {part}
             </span>
@@ -29,14 +31,16 @@ export default function ParsedText({ text }: Props) {
         } else if (part.startsWith('@')) {
           return (
             <span key={i} style={{ 
-              background: 'var(--success)', 
-              color: '#fff', 
-              padding: '0.1rem 0.4rem', 
+              background: 'color-mix(in srgb, var(--success) 15%, transparent)', 
+              color: 'var(--success)', 
+              padding: '0.15rem 0.5rem', 
               borderRadius: '999px',
               fontSize: '0.75rem',
-              fontWeight: 600,
+              fontWeight: 700,
               marginLeft: '0.2rem',
-              marginRight: '0.2rem'
+              marginRight: '0.2rem',
+              display: 'inline-block',
+              transform: 'translateY(-1px)'
             }}>
               {part}
             </span>
