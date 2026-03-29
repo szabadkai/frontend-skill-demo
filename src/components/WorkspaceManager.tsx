@@ -42,7 +42,7 @@ export default function WorkspaceManager({ onClose }: WorkspaceManagerProps) {
     const result = await shareList(sharingListId, shareEmail.trim());
     
     if (result.success) {
-      setShareStatus({ type: 'success', msg: 'Invitation sent!' });
+      setShareStatus({ type: 'success', msg: 'Shared with user!' });
       setShareEmail('');
       setTimeout(() => {
         setSharingListId(null);
@@ -250,7 +250,7 @@ export default function WorkspaceManager({ onClose }: WorkspaceManagerProps) {
                                 required
                                 value={shareEmail}
                                 onChange={e => setShareEmail(e.target.value)}
-                                placeholder="Friend's email address..."
+                                placeholder="User's exact email address..."
                                 style={{
                                   flex: 1,
                                   background: 'rgba(0,0,0,0.2)',
@@ -276,7 +276,7 @@ export default function WorkspaceManager({ onClose }: WorkspaceManagerProps) {
                                 }}
                                 disabled={!shareEmail.trim()}
                               >
-                                Invite
+                                Share
                               </button>
                             </div>
                             {shareStatus && (

@@ -100,8 +100,23 @@ export const useStore = create<AppState>()(
             set({ userProfile: user.user_metadata.userProfile });
           }
           get().fetchLists();
+
+          // Listen for being added to new lists
+          supabase.channel(`list_members_${user.id}`)
+            .on('postgres_changes', { 
+              event: 'INSERT', 
+              schema: 'public', 
+              table: 'list_members', 
+              filter: `user_id=eq.${user.id}` 
+            }, () => {
+              get().fetchLists();
+              alert('A new to-do list was just shared with you! 📬');
+            })
+            .subscribe();
+
         } else {
           set({ lists: [], activeList: null, todos: [], goals: [] });
+          supabase.removeAllChannels();
         }
       },
 
