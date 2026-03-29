@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useDrag } from '@use-gesture/react';
 import { CheckCircle2, Target, Settings } from 'lucide-react';
 import TodoTab from './components/TodoTab';
 import GoalsTab from './components/GoalsTab';
@@ -18,6 +19,15 @@ function App() {
     { id: 'settings', label: 'Settings', icon: Settings },
   ] as const;
 
+  const bind = useDrag(({ swipe: [swipeX] }) => {
+    const currentIndex = tabs.findIndex(t => t.id === activeTab);
+    if (swipeX === -1 && currentIndex < tabs.length - 1) {
+      setActiveTab(tabs[currentIndex + 1].id);
+    } else if (swipeX === 1 && currentIndex > 0) {
+      setActiveTab(tabs[currentIndex - 1].id);
+    }
+  }, { swipe: { distance: 40, velocity: 0.3 } });
+
   return (
     <div className="app glass-bg">
       <header className="app-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -25,7 +35,7 @@ function App() {
         <UserMenu />
       </header>
 
-      <main className="main-content">
+      <main className="main-content" {...bind()} style={{ touchAction: 'pan-y' }}>
         <div className="tabs glass-panel">
           {tabs.map((tab) => {
             const Icon = tab.icon;

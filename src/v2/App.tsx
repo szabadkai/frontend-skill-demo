@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useDrag } from '@use-gesture/react';
 import { Check, Target, Settings2 } from 'lucide-react';
 import TodoTab from './components/TodoTab';
 import GoalsTab from './components/GoalsTab';
@@ -18,6 +19,15 @@ function App() {
     { id: 'settings', label: 'SYSTEM', icon: Settings2 },
   ] as const;
 
+  const bind = useDrag(({ swipe: [swipeX] }) => {
+    const currentIndex = navItems.findIndex(t => t.id === activeTab);
+    if (swipeX === -1 && currentIndex < navItems.length - 1) {
+      setActiveTab(navItems[currentIndex + 1].id);
+    } else if (swipeX === 1 && currentIndex > 0) {
+      setActiveTab(navItems[currentIndex - 1].id);
+    }
+  }, { swipe: { distance: 40, velocity: 0.3 } });
+
   return (
     <div className="app-container app-editorial">
       <header className="app-header-editorial" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -28,7 +38,7 @@ function App() {
         <UserMenu />
       </header>
       
-      <main className="main-content-editorial">
+      <main className="main-content-editorial" {...bind()} style={{ touchAction: 'pan-y' }}>
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
