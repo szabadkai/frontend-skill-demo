@@ -1,7 +1,7 @@
 import type { Todo, Goal } from '../store/useStore';
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const DEFAULT_MODEL = 'google/gemini-2.5-flash'; // Updated valid model ID
+const DEFAULT_MODEL = 'google/gemini-2.0-flash-001'; // Common stable model ID
 
 export interface LLMResponse {
   goals: Array<{ text: string, progress: number }>;
@@ -10,7 +10,8 @@ export interface LLMResponse {
 export async function inferGoals(
   apiKey: string,
   todos: Todo[],
-  currentGoals: Goal[]
+  currentGoals: Goal[],
+  userProfile: string
 ): Promise<Array<Goal>> {
   if (!apiKey) {
     throw new Error("OpenRouter API Key is missing.");
@@ -19,12 +20,14 @@ export async function inferGoals(
   // To save tokens, we only send essential data
   const todoSummary = todos.map(t => `- [${t.completed ? 'x' : ' '}] ${t.text}`).join('\n');
   const goalSummary = currentGoals.map(g => `- ${g.text} (Progress: ${g.progress}%)`).join('\n');
+  const contextBlock = userProfile.trim() ? `User Profile / Context:\n${userProfile}\n` : '';
 
   const systemPrompt = `
 You are an intelligent goal-inference assistant.
-Look at the user's current Todos and existing Goals.
-Your task is to infer 1 to 3 new long-term or medium-term OVERARCHING GOALS based on these todos.
+Look at the user's current Todos, existing Goals, and personal Profile.
+Your task is to infer 1 to 3 new long-term or medium-term OVERARCHING GOALS based on these inputs.
 If the todos show a pattern towards something (e.g. 'buy domains', 'setup hosting' -> Goal: 'Launch Website'), identify it.
+Consider the user's profile context (e.g., student vs professional) to make goals more relevant.
 Also estimate a reasonable starting 'progress' percentage (between 0 and 100) based on how many related todos are completed versus pending.
 
 Output your answer EXACTLY as a raw JSON array of objects, with no markdown formatting. Do not include \`\`\`json.
@@ -34,6 +37,7 @@ Example:
 `;
 
   const userPrompt = `
+${contextBlock}
 Current Todos:
 ${todoSummary}
 

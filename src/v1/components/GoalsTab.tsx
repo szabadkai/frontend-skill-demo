@@ -6,7 +6,7 @@ import { Trash2, Loader2, Target } from 'lucide-react';
 import './GoalsTab.css';
 
 export default function GoalsTab() {
-  const { todos, goals, addGoal, deleteGoal, setGoals, openRouterApiKey } = useStore();
+  const { todos, goals, addGoal, deleteGoal, setGoals, openRouterApiKey, userProfile } = useStore();
   const [newText, setNewText] = useState('');
   const [isInferring, setIsInferring] = useState(false);
   const [errorText, setErrorText] = useState('');
@@ -27,7 +27,7 @@ export default function GoalsTab() {
     setErrorText('');
     setIsInferring(true);
     try {
-      const generated = await inferGoals(openRouterApiKey, todos, goals);
+      const generated = await inferGoals(openRouterApiKey, todos, goals, userProfile || '');
       setGoals([...goals, ...generated]);
     } catch (error: any) {
       console.error(error);
