@@ -2,7 +2,6 @@ import React, { useEffect, Suspense } from 'react';
 import { useStore } from './store/useStore';
 import { supabase } from './supabaseClient';
 import AuthScreen from './components/AuthScreen';
-import InstallPrompt from './components/InstallPrompt';
 
 // Dynamically import versions so CSS chunks don't aggressively collide
 const AppV1 = React.lazy(() => import('./v1/App'));
@@ -113,7 +112,6 @@ function MainRouter() {
       <Suspense fallback={<div style={{color:'var(--text-primary)', padding:'2rem'}}>Loading…</div>}>
         {renderApp()}
       </Suspense>
-      <InstallPrompt />
     </>
   );
 }
