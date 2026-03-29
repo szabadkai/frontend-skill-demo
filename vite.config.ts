@@ -9,13 +9,37 @@ export default defineConfig({
     react(),
     VitePWA({ 
       registerType: 'autoUpdate',
+      includeAssets: ['favicon.svg', 'favicon.ico', 'apple-touch-icon-180x180.png', 'pwa-64x64.png', 'pwa-192x192.png', 'pwa-512x512.png', 'maskable-icon-512x512.png'],
       manifest: {
         name: 'Todo AI Goals',
         short_name: 'Todo',
         theme_color: '#0d0f17',
         background_color: '#0d0f17',
         display: 'standalone',
-        orientation: 'portrait'
+        orientation: 'portrait',
+        icons: [
+          {
+            src: 'pwa-64x64.png',
+            sizes: '64x64',
+            type: 'image/png'
+          },
+          {
+            src: 'pwa-192x192.png',
+            sizes: '192x192',
+            type: 'image/png'
+          },
+          {
+            src: 'pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png'
+          },
+          {
+            src: 'maskable-icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable'
+          }
+        ]
       }
     })
   ],
