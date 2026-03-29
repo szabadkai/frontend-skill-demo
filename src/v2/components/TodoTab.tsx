@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Reorder, AnimatePresence, motion } from 'framer-motion';
 import { useStore } from '../../store/useStore';
-import { X, ArrowUpRight } from 'lucide-react';
+import { X, ArrowUpRight, ArrowRight, Loader2 } from 'lucide-react';
+import { inferTodos } from '../../services/llm';
 import './TodoTab.css';
 
 export default function TodoTab() {
-  const { todos, addTodo, toggleTodo, deleteTodo, reorderTodos, editTodo } = useStore();
+  const { todos, goals, openRouterApiKey, addTodo, toggleTodo, deleteTodo, reorderTodos, editTodo } = useStore();
   const [newText, setNewText] = useState('');
+  const [isInferring, setIsInferring] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
 
@@ -35,6 +37,19 @@ export default function TodoTab() {
     }
   };
 
+  const handleInfer = async () => {
+    if (!openRouterApiKey) { alert('API key required in System.'); return; }
+    setIsInferring(true);
+    try {
+        const newTodos = await inferTodos(openRouterApiKey, todos, goals);
+        newTodos.forEach(nt => addTodo(nt.text));
+    } catch {
+        alert('Failed to infer items.');
+    } finally {
+        setIsInferring(false);
+    }
+  };
+
   const pendingCount = todos.filter(t => !t.completed).length;
 
   return (
@@ -58,6 +73,16 @@ export default function TodoTab() {
           </button>
         </div>
       </form>
+
+      {goals.length > 0 && (
+        <button className="btn-brutal font-sans" style={{width: '100%', padding: '1rem', marginTop: '-0.5rem'}} onClick={handleInfer} disabled={isInferring}>
+          {isInferring ? (
+            <span className="btn-content"><Loader2 className="spin" size={16} /> ANALYZING</span>
+          ) : (
+            <span className="btn-content">INFER OBJECTIVES <ArrowRight size={16} /></span>
+          )}
+        </button>
+      )}
 
       <div className="todos-wrapper">
         <Reorder.Group axis="y" values={todos} onReorder={reorderTodos} className="todo-list">

@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Reorder, AnimatePresence, motion } from 'framer-motion';
 import { useStore } from '../../store/useStore';
-import { Plus, Trash2, Check, GripVertical } from 'lucide-react';
+import { Plus, Trash2, Check, GripVertical, Loader2, Sparkles } from 'lucide-react';
+import { inferTodos } from '../../services/llm';
 import './TodoTab.css';
 
 export default function TodoTab() {
-  const { todos, addTodo, toggleTodo, deleteTodo, reorderTodos, editTodo } = useStore();
+  const { todos, goals, openRouterApiKey, addTodo, toggleTodo, deleteTodo, reorderTodos, editTodo } = useStore();
   const [newText, setNewText] = useState('');
+  const [isInferring, setIsInferring] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
 
@@ -35,6 +37,19 @@ export default function TodoTab() {
     }
   };
 
+  const handleInfer = async () => {
+    if (!openRouterApiKey) { alert('API key required in Settings.'); return; }
+    setIsInferring(true);
+    try {
+        const newTodos = await inferTodos(openRouterApiKey, todos, goals);
+        newTodos.forEach(nt => addTodo(nt.text));
+    } catch {
+        alert('Failed to infer items.');
+    } finally {
+        setIsInferring(false);
+    }
+  };
+
   return (
     <div className="tab-container todo-v1">
       <form onSubmit={handleAdd} className="add-form glass-panel">
@@ -49,6 +64,13 @@ export default function TodoTab() {
           <Plus size={20} />
         </button>
       </form>
+
+      {goals.length > 0 && (
+        <button onClick={handleInfer} className="btn-primary glass-panel" style={{width: '100%', marginBottom: '0.5rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', opacity: isInferring ? 0.7 : 1}} disabled={isInferring}>
+          {isInferring ? <Loader2 className="spin" size={18}/> : <Sparkles size={18}/>} 
+          {isInferring ? 'Auto Inferring...' : 'Auto-Suggest Next Steps'}
+        </button>
+      )}
 
       <div className="todos-wrapper">
         <Reorder.Group axis="y" values={todos} onReorder={reorderTodos} className="todo-list">

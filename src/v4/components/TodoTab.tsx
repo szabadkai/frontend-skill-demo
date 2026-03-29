@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Reorder, AnimatePresence, motion } from 'framer-motion';
 import { useStore } from '../../store/useStore';
-import { CornerDownLeft, X, Check, GripVertical } from 'lucide-react';
+import { CornerDownLeft, X, Check, GripVertical, Loader2, Cpu } from 'lucide-react';
+import { inferTodos } from '../../services/llm';
 import './TodoTab.css';
 
 export default function TodoTab() {
-  const { todos, addTodo, toggleTodo, deleteTodo, reorderTodos, editTodo } = useStore();
+  const { todos, goals, openRouterApiKey, addTodo, toggleTodo, deleteTodo, reorderTodos, editTodo } = useStore();
   const [newText, setNewText] = useState('');
+  const [isInferring, setIsInferring] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
 
@@ -35,6 +37,19 @@ export default function TodoTab() {
     }
   };
 
+  const handleInfer = async () => {
+    if (!openRouterApiKey) { alert('[ERROR] API KEY REQUIRED IN SYSTEM.'); return; }
+    setIsInferring(true);
+    try {
+        const newTodos = await inferTodos(openRouterApiKey, todos, goals);
+        newTodos.forEach(nt => addTodo(nt.text));
+    } catch {
+        alert('[ERROR] INFERENCE FAILED.');
+    } finally {
+        setIsInferring(false);
+    }
+  };
+
   const pendingCount = todos.filter(t => !t.completed).length;
 
   return (
@@ -45,6 +60,12 @@ export default function TodoTab() {
           {pendingCount} PENDING
         </div>
       </div>
+
+      {goals.length > 0 && (
+        <button onClick={handleInfer} className="chrome-panel mono-text" style={{width: '100%', padding: '0.75rem', marginBottom: '1.5rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', background: 'var(--accent)', color: '#fff', border: 'none', cursor: 'pointer'}} disabled={isInferring}>
+          {isInferring ? <Loader2 className="spin" size={14}/> : <Cpu size={14}/>} {isInferring ? '[ GENERATING... ]' : '[ EXECUTE TASK GENERATION ]'}
+        </button>
+      )}
 
       <form onSubmit={handleAdd} className="add-form-tech">
         <div className="input-wrap-tech">

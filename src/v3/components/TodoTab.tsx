@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Reorder, AnimatePresence, motion } from 'framer-motion';
 import { useStore } from '../../store/useStore';
-import { Plus, X, Check, GripVertical } from 'lucide-react';
+import { Plus, X, Check, GripVertical, Loader2, Sparkles } from 'lucide-react';
+import { inferTodos } from '../../services/llm';
 import './TodoTab.css';
 
 export default function TodoTab() {
-  const { todos, addTodo, toggleTodo, deleteTodo, reorderTodos, editTodo } = useStore();
+  const { todos, goals, openRouterApiKey, addTodo, toggleTodo, deleteTodo, reorderTodos, editTodo } = useStore();
   const [newText, setNewText] = useState('');
+  const [isInferring, setIsInferring] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
 
@@ -35,6 +37,19 @@ export default function TodoTab() {
     }
   };
 
+  const handleInfer = async () => {
+    if (!openRouterApiKey) { alert('Oops! You need an API key in Settings.'); return; }
+    setIsInferring(true);
+    try {
+        const newTodos = await inferTodos(openRouterApiKey, todos, goals);
+        newTodos.forEach(nt => addTodo(nt.text));
+    } catch {
+        alert('Uh oh! Could not fetch ideas right now.');
+    } finally {
+        setIsInferring(false);
+    }
+  };
+
   const pendingCount = todos.filter(t => !t.completed).length;
 
   return (
@@ -56,6 +71,16 @@ export default function TodoTab() {
           </button>
         </div>
       </form>
+
+      {goals.length > 0 && (
+        <button className="btn-bubbly" onClick={handleInfer} style={{width: '100%'}} disabled={isInferring}>
+          {isInferring ? (
+            <span style={{display: 'flex', gap: '0.5rem', alignItems: 'center'}}><Loader2 className="spin" size={20} /> THINKING...</span>
+          ) : (
+            <span style={{display: 'flex', gap: '0.5rem', alignItems: 'center'}}><Sparkles size={20} /> SUGGEST NEXT MOVES</span>
+          )}
+        </button>
+      )}
 
       <div className="todos-wrapper-soft">
         <Reorder.Group axis="y" values={todos} onReorder={reorderTodos} className="todo-list-bubbly">
