@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Reorder, AnimatePresence, motion } from 'framer-motion';
 import { useStore } from '../../store/useStore';
-import { Plus, X, Check, GripVertical, Loader2, Wand2, ListPlus } from 'lucide-react';
+import { Plus, X, Check, Loader2, Wand2, ListPlus } from 'lucide-react';
 import AutocompleteInput from '../../components/AutocompleteInput';
 import ParsedText from '../../components/ParsedText';
 import { inferTodos } from '../../services/llm';
@@ -95,9 +95,8 @@ export default function TodoTab() {
 
   const pendingCount = activeTodos.length;
 
-  const renderTodoContent = (todo: typeof todos[0], isDraggable: boolean = true) => (
+  const renderTodoContent = (todo: typeof todos[0]) => (
     <div className="todo-content-bubbly">
-      {isDraggable && <div className="drag-handle-soft"><GripVertical size={20} strokeWidth={2} className="grip-icon-soft" /></div>}
       <button className={`bouncy-checkbox ${todo.completed ? 'checked-soft' : ''}`} onClick={() => toggleTodo(todo.id)} aria-label="Toggle Complete">
         <AnimatePresence>
           {todo.completed && (
@@ -247,7 +246,7 @@ export default function TodoTab() {
                 transition={{ type: "spring", stiffness: 450, damping: 25 }}
                 className={`todo-row-soft`} 
               >
-                {renderTodoContent(todo, true)}
+                {renderTodoContent(todo)}
               </Reorder.Item>
             ))}
           </AnimatePresence>
@@ -264,7 +263,7 @@ export default function TodoTab() {
                   transition={{ type: "spring", stiffness: 450, damping: 25 }}
                   className={`todo-row-soft is-done-soft`}
                 >
-                  {renderTodoContent(todo, false)}
+                  {renderTodoContent(todo)}
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -295,7 +294,7 @@ export default function TodoTab() {
                       transition={{ type: "spring", stiffness: 450, damping: 25 }}
                       className={`todo-row-soft is-done-soft`}
                     >
-                      {renderTodoContent(todo, false)}
+                      {renderTodoContent(todo)}
                     </motion.div>
                   ))}
                 </motion.div>

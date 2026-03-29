@@ -95,7 +95,7 @@ export default function TodoTab() {
 
   const pendingCount = activeTodos.length;
 
-  const renderTodoContent = (todo: typeof todos[0], isDraggable: boolean = true) => (
+  const renderTodoContent = (todo: typeof todos[0]) => (
     <div className="todo-content">
       <button 
         className="minimal-checkbox"
@@ -133,12 +133,6 @@ export default function TodoTab() {
       <button className="icon-btn delete-btn" onClick={() => deleteTodo(todo.id)}>
         <X size={16} />
       </button>
-      
-      {isDraggable && (
-        <div className="drag-handle">
-          <div className="grip-lines"></div>
-        </div>
-      )}
     </div>
   );
 
@@ -261,7 +255,7 @@ export default function TodoTab() {
                 transition={{ type: "spring", stiffness: 350, damping: 35 }}
                 className={`todo-row`}
               >
-                {renderTodoContent(todo, true)}
+                {renderTodoContent(todo)}
               </Reorder.Item>
             ))}
           </AnimatePresence>
@@ -280,7 +274,7 @@ export default function TodoTab() {
                   transition={{ type: "spring", stiffness: 350, damping: 35 }}
                   className={`todo-row is-done`}
                 >
-                  {renderTodoContent(todo, false)}
+                  {renderTodoContent(todo)}
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -314,7 +308,7 @@ export default function TodoTab() {
                       transition={{ type: "spring", stiffness: 350, damping: 35 }}
                       className={`todo-row is-done`}
                     >
-                      {renderTodoContent(todo, false)}
+                      {renderTodoContent(todo)}
                     </motion.div>
                   ))}
                 </motion.div>

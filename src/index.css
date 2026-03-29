@@ -220,10 +220,10 @@ body.theme-v4.dark .chrome-panel {
 }
 
 /* Navigating Backward (Left) */
-html.back-transition ::view-transition-old(tab-content) {
+html.back-transition::view-transition-old(tab-content) {
   animation-name: slide-out-right;
 }
-html.back-transition ::view-transition-new(tab-content) {
+html.back-transition::view-transition-new(tab-content) {
   animation-name: slide-in-left;
 }
 

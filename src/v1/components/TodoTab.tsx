@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Reorder, AnimatePresence, motion } from 'framer-motion';
 import { useStore } from '../../store/useStore';
-import { Plus, Trash2, Check, GripVertical, Loader2, Wand2, X } from 'lucide-react';
+import { Plus, Trash2, Check, Loader2, Wand2, X } from 'lucide-react';
 import AutocompleteInput from '../../components/AutocompleteInput';
 import ParsedText from '../../components/ParsedText';
 import { inferTodos } from '../../services/llm';
@@ -94,10 +94,9 @@ export default function TodoTab() {
     setSuggestedTasks([]);
   };
 
-  const renderTodoContent = (todo: typeof todos[0], isDraggable: boolean = true) => (
+  const renderTodoContent = (todo: typeof todos[0]) => (
     <>
-      {isDraggable && <div className="drag-handle"><GripVertical size={18} /></div>}
-      <button 
+      <button  
         className="checkbox-custom"
         onClick={() => toggleTodo(todo.id)}
       >
@@ -238,7 +237,7 @@ export default function TodoTab() {
                 exit={{ opacity: 0, x: -50 }}
                 className={`todo-item glass-panel`}
               >
-                {renderTodoContent(todo, true)}
+                {renderTodoContent(todo)}
               </Reorder.Item>
             ))}
           </AnimatePresence>
@@ -256,7 +255,7 @@ export default function TodoTab() {
                   exit={{ opacity: 0, x: -50 }}
                   className={`todo-item glass-panel completed`}
                 >
-                  {renderTodoContent(todo, false)}
+                  {renderTodoContent(todo)}
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -289,7 +288,7 @@ export default function TodoTab() {
                       exit={{ opacity: 0, x: -50 }}
                       className={`todo-item glass-panel completed`}
                     >
-                      {renderTodoContent(todo, false)}
+                      {renderTodoContent(todo)}
                     </motion.div>
                   ))}
                 </motion.div>

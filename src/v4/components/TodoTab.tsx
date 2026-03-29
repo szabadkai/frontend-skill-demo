@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Reorder, AnimatePresence, motion } from 'framer-motion';
 import { useStore } from '../../store/useStore';
-import { CornerDownLeft, X, Check, GripVertical, Loader2, Cpu } from 'lucide-react';
+import { CornerDownLeft, X, Check, Loader2, Cpu } from 'lucide-react';
 import AutocompleteInput from '../../components/AutocompleteInput';
 import ParsedText from '../../components/ParsedText';
 import { inferTodos } from '../../services/llm';
@@ -95,17 +95,8 @@ export default function TodoTab() {
 
   const pendingCount = activeTodos.length;
 
-  const renderTodoContent = (todo: typeof todos[0], idx: number, isDraggable: boolean = true) => (
+  const renderTodoContent = (todo: typeof todos[0], idx: number) => (
     <div className={`todo-content-tech`}>
-      {isDraggable ? (
-        <div className="drag-handle-tech">
-          <GripVertical size={14} className="grip-icon-tech" />
-        </div>
-      ) : (
-        <div className="drag-handle-tech" style={{ opacity: 0.2 }}>
-           <Check size={14} className="grip-icon-tech" />
-        </div>
-      )}
       
       <span className="task-idx mono-text text-muted">
         {String(idx).padStart(2, '0')}
@@ -279,7 +270,7 @@ export default function TodoTab() {
                 transition={{ type: "spring", stiffness: 600, damping: 40 }}
                 className={`todo-row-tech chrome-panel`}
               >
-                {renderTodoContent(todo, idx, true)}
+                {renderTodoContent(todo, idx)}
               </Reorder.Item>
             ))}
           </AnimatePresence>
@@ -298,7 +289,7 @@ export default function TodoTab() {
                   transition={{ type: "spring", stiffness: 600, damping: 40 }}
                   className={`todo-row-tech chrome-panel is-done-tech`}
                 >
-                  {renderTodoContent(todo, activeTodos.length + idx, false)}
+                  {renderTodoContent(todo, activeTodos.length + idx)}
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -331,7 +322,7 @@ export default function TodoTab() {
                       transition={{ type: "spring", stiffness: 600, damping: 40 }}
                       className={`todo-row-tech chrome-panel is-done-tech opacity-muted`}
                     >
-                      {renderTodoContent(todo, activeTodos.length + completedTodos.length + idx, false)}
+                      {renderTodoContent(todo, activeTodos.length + completedTodos.length + idx)}
                     </motion.div>
                   ))}
                 </motion.div>
