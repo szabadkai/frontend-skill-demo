@@ -11,7 +11,11 @@ import './App.css';
 type TabType = 'todos' | 'goals' | 'settings';
 
 function App() {
-  const [activeTab, setActiveTab] = useState<TabType>('todos');
+  const [[activeTab, direction], setTab] = useState<[TabType, number]>(['todos', 0]);
+
+  const changeTab = (newTab: TabType, dir: number) => {
+    setTab([newTab, dir]);
+  };
 
   const tabs = [
     { id: 'todos', label: 'Todos', icon: CheckCircle2 },
@@ -22,11 +26,31 @@ function App() {
   const bind = useDrag(({ swipe: [swipeX] }) => {
     const currentIndex = tabs.findIndex(t => t.id === activeTab);
     if (swipeX === -1 && currentIndex < tabs.length - 1) {
-      setActiveTab(tabs[currentIndex + 1].id);
+      changeTab(tabs[currentIndex + 1].id, 1);
     } else if (swipeX === 1 && currentIndex > 0) {
-      setActiveTab(tabs[currentIndex - 1].id);
+      changeTab(tabs[currentIndex - 1].id, -1);
     }
   }, { swipe: { distance: 40, velocity: 0.3 } });
+
+  const slideVariants = {
+    enter: (dir: number) => ({
+      x: dir > 0 ? 100 : -100,
+      opacity: 0,
+      scale: 0.98
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1,
+      scale: 1
+    },
+    exit: (dir: number) => ({
+      zIndex: 0,
+      x: dir < 0 ? 100 : -100,
+      opacity: 0,
+      scale: 0.98
+    })
+  };
 
   return (
     <div className="app glass-bg">
@@ -42,7 +66,12 @@ function App() {
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => {
+                  if (activeTab === tab.id) return;
+                  const currentIndex = tabs.findIndex(t => t.id === activeTab);
+                  const nextIndex = tabs.findIndex(t => t.id === tab.id);
+                  changeTab(tab.id, nextIndex > currentIndex ? 1 : -1);
+                }}
                 className={`tab-btn ${activeTab === tab.id ? 'active' : ''}`}
               >
                 <Icon size={18} />
@@ -55,14 +84,16 @@ function App() {
           })}
         </div>
 
-        <div className="tab-content">
-          <AnimatePresence mode="wait">
+        <div className="tab-content" style={{ overflowX: 'hidden' }}>
+          <AnimatePresence mode="wait" initial={false} custom={direction}>
             <motion.div
               key={activeTab}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ type: 'spring', stiffness: 350, damping: 30 }}
             >
               {activeTab === 'todos' && <TodoTab />}
               {activeTab === 'goals' && <GoalsTab />}
