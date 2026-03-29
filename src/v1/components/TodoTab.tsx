@@ -74,20 +74,22 @@ export default function TodoTab() {
 
   return (
     <div className="tab-container todo-v1">
-      <form onSubmit={handleAdd} className="add-form glass-panel" style={{position: 'relative'}}>
-        <input
-          type="text"
-          className="input-glass"
-          placeholder="What needs to be done?"
-          value={newText}
-          onChange={(e) => setNewText(e.target.value)}
-          style={{ paddingRight: goals.length > 0 ? '70px' : '1.25rem' }}
-        />
-        {goals.length > 0 && (
-          <button type="button" onClick={handleWandClick} className="wand-btn-v1" disabled={inferenceMode !== 'hidden'} title="Auto-suggest tasks from goals">
-            <Wand2 size={20}/>
-          </button>
-        )}
+      <form onSubmit={handleAdd} className="add-form glass-panel">
+        <div style={{position: 'relative', flex: 1}}>
+          <input
+            type="text"
+            className="input-glass"
+            placeholder="What needs to be done?"
+            value={newText}
+            onChange={(e) => setNewText(e.target.value)}
+            style={{ paddingRight: goals.length > 0 ? '48px' : '1.25rem' }}
+          />
+          {goals.length > 0 && (
+            <button type="button" onClick={handleWandClick} className="wand-btn-v1" disabled={inferenceMode !== 'hidden'} title="Auto-suggest tasks from goals">
+              <Wand2 size={18}/>
+            </button>
+          )}
+        </div>
         <button type="submit" className="add-btn btn-primary" disabled={!newText.trim()}>
           <Plus size={20} />
         </button>

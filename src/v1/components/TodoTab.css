@@ -78,13 +78,13 @@
 
 .wand-btn-v1 {
   position: absolute;
-  right: 64px;
+  right: 8px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-muted);
   background: transparent;
   border: none;
-  padding: 0.5rem;
+  padding: 0.4rem;
   border-radius: 8px;
   display: flex;
   align-items: center;

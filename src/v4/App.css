@@ -180,3 +180,22 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* V4 Light Mode Overrides */
+body.theme-v4.light .app-header-tech {
+  background: rgba(250, 250, 250, 0.9);
+}
+
+body.theme-v4.light .dock-tech {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: #E4E4E7;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+body.theme-v4.light .dock-item-tech:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+body.theme-v4.light .dock-item-tech {
+  color: var(--text-secondary);
+}
