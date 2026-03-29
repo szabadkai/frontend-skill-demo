@@ -61,12 +61,6 @@ export default function TodoTab() {
         </div>
       </div>
 
-      {goals.length > 0 && (
-        <button onClick={handleInfer} className="chrome-panel mono-text" style={{width: '100%', padding: '0.75rem', marginBottom: '1.5rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', background: 'var(--accent)', color: '#fff', border: 'none', cursor: 'pointer'}} disabled={isInferring}>
-          {isInferring ? <Loader2 className="spin" size={14}/> : <Cpu size={14}/>} {isInferring ? '[ GENERATING... ]' : '[ EXECUTE TASK GENERATION ]'}
-        </button>
-      )}
-
       <form onSubmit={handleAdd} className="add-form-tech">
         <div className="input-wrap-tech">
           <span className="prompt-symbol mono-text">&gt;</span>
@@ -77,6 +71,11 @@ export default function TodoTab() {
             value={newText}
             onChange={(e) => setNewText(e.target.value)}
           />
+          {goals.length > 0 && (
+            <button type="button" onClick={handleInfer} className="wand-btn-tech" disabled={isInferring} title="[ INFER_TASKS ]">
+              {isInferring ? <Loader2 className="spin" size={16}/> : <Cpu size={16}/>}
+            </button>
+          )}
           <button type="submit" className="submit-btn-tech" disabled={!newText.trim()}>
             <CornerDownLeft size={16} />
           </button>

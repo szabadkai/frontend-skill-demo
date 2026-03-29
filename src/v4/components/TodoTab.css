@@ -81,6 +81,16 @@
   opacity: 0.3;
 }
 
+.wand-btn-tech {
+  color: var(--text-muted); padding: 0.5rem; border-radius: 4px; border: none; background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  transition: color 0.2s, background 0.2s; cursor: pointer; margin-right: 0.25rem;
+}
+.wand-btn-tech:not(:disabled):hover {
+  color: var(--accent); background: rgba(99, 102, 241, 0.1);
+}
+.wand-btn-tech:disabled { opacity: 0.3; cursor: not-allowed; }
+
 .todos-wrapper-tech {
   display: flex;
   flex-direction: column;

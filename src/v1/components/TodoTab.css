@@ -75,3 +75,30 @@
   padding: 2rem;
   color: var(--text-muted);
 }
+
+.wand-btn-v1 {
+  position: absolute;
+  right: 64px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.wand-btn-v1:hover:not(:disabled) {
+  color: var(--accent);
+  background: rgba(139, 92, 246, 0.15);
+}
+
+.wand-btn-v1:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

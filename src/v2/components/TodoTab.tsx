@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Reorder, AnimatePresence, motion } from 'framer-motion';
 import { useStore } from '../../store/useStore';
-import { X, ArrowUpRight, ArrowRight, Loader2 } from 'lucide-react';
+import { X, ArrowUpRight, ArrowRight, Loader2, Wand2 } from 'lucide-react';
 import { inferTodos } from '../../services/llm';
 import './TodoTab.css';
 
@@ -67,22 +67,18 @@ export default function TodoTab() {
             placeholder="Add an objective..."
             value={newText}
             onChange={(e) => setNewText(e.target.value)}
+            style={{ paddingRight: goals.length > 0 ? '70px' : '36px' }}
           />
+          {goals.length > 0 && (
+            <button type="button" onClick={handleInfer} className="wand-btn-editorial" disabled={isInferring} title="Suggest steps">
+              {isInferring ? <Loader2 className="spin" size={16}/> : <Wand2 size={16}/>}
+            </button>
+          )}
           <button type="submit" className="circle-btn submit-btn" disabled={!newText.trim()}>
             <ArrowUpRight size={18} />
           </button>
         </div>
       </form>
-
-      {goals.length > 0 && (
-        <button className="btn-brutal font-sans" style={{width: '100%', padding: '1rem', marginTop: '-0.5rem'}} onClick={handleInfer} disabled={isInferring}>
-          {isInferring ? (
-            <span className="btn-content"><Loader2 className="spin" size={16} /> ANALYZING</span>
-          ) : (
-            <span className="btn-content">INFER OBJECTIVES <ArrowRight size={16} /></span>
-          )}
-        </button>
-      )}
 
       <div className="todos-wrapper">
         <Reorder.Group axis="y" values={todos} onReorder={reorderTodos} className="todo-list">

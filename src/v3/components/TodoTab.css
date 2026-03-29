@@ -21,6 +21,20 @@
 .bubbly-add-btn:hover { transform: scale(1.05); }
 .bubbly-add-btn:active { transform: scale(0.9); }
 
+.wand-btn-bubbly {
+  position: absolute; right: 3.5rem; z-index: 10;
+  color: var(--text-muted); background: transparent; border: none;
+  padding: 0.5rem; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+}
+.wand-btn-bubbly:hover:not(:disabled) {
+  color: var(--accent); transform: scale(1.1);
+}
+.wand-btn-bubbly:active:not(:disabled) { transform: scale(0.9); }
+.wand-btn-bubbly:disabled { opacity: 0.5; cursor: not-allowed; }
+
 .todos-wrapper-soft { flex: 1; padding-bottom: 2rem; }
 
 .todo-list-bubbly { display: flex; flex-direction: column; gap: 0.75rem; list-style: none; }

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Reorder, AnimatePresence, motion } from 'framer-motion';
 import { useStore } from '../../store/useStore';
-import { Plus, X, Check, GripVertical, Loader2, Sparkles } from 'lucide-react';
+import { Plus, X, Check, GripVertical, Loader2, Wand2 } from 'lucide-react';
 import { inferTodos } from '../../services/llm';
 import './TodoTab.css';
 
@@ -65,22 +65,24 @@ export default function TodoTab() {
 
       <form onSubmit={handleAdd} className="add-form-bubbly">
         <div className="input-wrap-bubbly">
-          <input type="text" className="input-bubbly" placeholder="I need to..." value={newText} onChange={(e) => setNewText(e.target.value)} />
+          <input
+            type="text"
+            className="input-bubbly-main"
+            placeholder="Add a fun new task!"
+            value={newText}
+            onChange={(e) => setNewText(e.target.value)}
+            style={{ paddingRight: goals.length > 0 ? '5rem' : '3.5rem' }}
+          />
+          {goals.length > 0 && (
+            <button type="button" onClick={handleInfer} className="wand-btn-bubbly" disabled={isInferring} title="Magic Task Suggestion">
+              {isInferring ? <Loader2 className="spin" size={20}/> : <Wand2 size={20}/>}
+            </button>
+          )}
           <button type="submit" className="bubbly-add-btn" disabled={!newText.trim()}>
             <Plus size={24} strokeWidth={3} />
           </button>
         </div>
       </form>
-
-      {goals.length > 0 && (
-        <button className="btn-bubbly" onClick={handleInfer} style={{width: '100%'}} disabled={isInferring}>
-          {isInferring ? (
-            <span style={{display: 'flex', gap: '0.5rem', alignItems: 'center'}}><Loader2 className="spin" size={20} /> THINKING...</span>
-          ) : (
-            <span style={{display: 'flex', gap: '0.5rem', alignItems: 'center'}}><Sparkles size={20} /> SUGGEST NEXT MOVES</span>
-          )}
-        </button>
-      )}
 
       <div className="todos-wrapper-soft">
         <Reorder.Group axis="y" values={todos} onReorder={reorderTodos} className="todo-list-bubbly">

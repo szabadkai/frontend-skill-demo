@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Reorder, AnimatePresence, motion } from 'framer-motion';
 import { useStore } from '../../store/useStore';
-import { Plus, Trash2, Check, GripVertical, Loader2, Sparkles } from 'lucide-react';
+import { Plus, Trash2, Check, GripVertical, Loader2, Wand2 } from 'lucide-react';
 import { inferTodos } from '../../services/llm';
 import './TodoTab.css';
 
@@ -52,25 +52,24 @@ export default function TodoTab() {
 
   return (
     <div className="tab-container todo-v1">
-      <form onSubmit={handleAdd} className="add-form glass-panel">
+      <form onSubmit={handleAdd} className="add-form glass-panel" style={{position: 'relative'}}>
         <input
           type="text"
           className="input-glass"
           placeholder="What needs to be done?"
           value={newText}
           onChange={(e) => setNewText(e.target.value)}
+          style={{ paddingRight: goals.length > 0 ? '70px' : '1.25rem' }}
         />
+        {goals.length > 0 && (
+          <button type="button" onClick={handleInfer} className="wand-btn-v1" disabled={isInferring} title="Auto-suggest tasks from goals">
+            {isInferring ? <Loader2 className="spin" size={20}/> : <Wand2 size={20}/>}
+          </button>
+        )}
         <button type="submit" className="add-btn btn-primary" disabled={!newText.trim()}>
           <Plus size={20} />
         </button>
       </form>
-
-      {goals.length > 0 && (
-        <button onClick={handleInfer} className="btn-primary glass-panel" style={{width: '100%', marginBottom: '0.5rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', opacity: isInferring ? 0.7 : 1}} disabled={isInferring}>
-          {isInferring ? <Loader2 className="spin" size={18}/> : <Sparkles size={18}/>} 
-          {isInferring ? 'Auto Inferring...' : 'Auto-Suggest Next Steps'}
-        </button>
-      )}
 
       <div className="todos-wrapper">
         <Reorder.Group axis="y" values={todos} onReorder={reorderTodos} className="todo-list">
