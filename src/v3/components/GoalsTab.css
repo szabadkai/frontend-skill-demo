@@ -1,0 +1,39 @@
+.goals-bubbly { gap: 1.5rem; display: flex; flex-direction: column; }
+
+.infer-section-fun { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.magic-btn { background: var(--accent-gradient); font-size: 1.125rem; letter-spacing: 1px; width: 100%;}
+.magic-btn:hover:not(:disabled) { box-shadow: 0 8px 24px rgba(56, 189, 248, 0.5); transform: translateY(-4px) scale(1.02); }
+
+.btn-content { display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+.spin { animation: spin 1s linear infinite; }
+
+.error-text-soft { color: var(--danger); font-size: 0.9rem; font-weight: 700; text-align: center; }
+
+.goals-wrapper-soft { display: flex; flex-direction: column; gap: 1rem; padding-bottom: 2rem; }
+
+.goal-card-soft {
+  display: flex; flex-direction: column; padding: 1.5rem; background: var(--surface-bg);
+  border-radius: var(--radius-main); box-shadow: var(--shadow-soft); gap: 1.5rem; transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.goal-card-soft:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(51, 65, 85, 0.08); }
+
+.goal-content-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+
+.goal-text-stack { display: flex; flex-direction: column; gap: 0.35rem; }
+
+.ai-tag-soft {
+  display: inline-block; font-size: 0.75rem; font-weight: 800; color: var(--accent);
+  background: var(--surface-bg-hover); padding: 0.25rem 0.6rem; border-radius: var(--radius-pill); width: fit-content;
+}
+
+.goal-heading-soft { font-size: 1.5rem; font-weight: 800; color: var(--text-primary); margin: 0; line-height: 1.2; }
+
+.goal-progress-fat { display: flex; align-items: center; gap: 1rem; }
+
+.progress-bar-bg-fat { flex: 1; height: 16px; background: var(--surface-border); border-radius: var(--radius-pill); position: relative; overflow: hidden; }
+
+.progress-fill-gradient { position: absolute; top: 0; bottom: 0; left: 0; background: var(--accent-gradient); border-radius: var(--radius-pill); min-width: 16px; }
+
+.progress-number-soft { font-size: 1.125rem; font-weight: 800; color: var(--text-secondary); width: 44px; text-align: right; }

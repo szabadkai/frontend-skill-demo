@@ -1,77 +1,71 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { SquareTerminal, Database, Settings2 } from 'lucide-react';
-import TodoTab from './components/TodoTab';
-import GoalsTab from './components/GoalsTab';
-import SettingsTab from './components/SettingsTab';
-import './App.css';
+import React, { useEffect, useState, Suspense } from 'react';
 
-type TabType = 'todos' | 'goals' | 'settings';
+// Dynamically import versions so CSS chunks don't aggressively collide
+const AppV1 = React.lazy(() => import('./v1/App'));
+const AppV2 = React.lazy(() => import('./v2/App'));
+const AppV3 = React.lazy(() => import('./v3/App'));
+const AppV4 = React.lazy(() => import('./v4/App'));
 
-function App() {
-  const [activeTab, setActiveTab] = useState<TabType>('todos');
+function MainRouter() {
+  const [version, setVersion] = useState<string>('4');
 
-  const navItems = [
-    { id: 'todos', label: '/tasks', icon: SquareTerminal },
-    { id: 'goals', label: '/goals', icon: Database },
-    { id: 'settings', label: '/config', icon: Settings2 },
-  ] as const;
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const v = params.get('v') || '4';
+    setVersion(v);
+
+    // Update body theme class for scoped CSS variables
+    document.body.className = `theme-v${v}`;
+  }, []);
+
+  const renderApp = () => {
+    switch (version) {
+      case '1': return <AppV1 />;
+      case '2': return <AppV2 />;
+      case '3': return <AppV3 />;
+      case '4': return <AppV4 />;
+      default: return <AppV4 />;
+    }
+  };
+
+  // Switcher UI
+  const setV = (v: string) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('v', v);
+    window.history.pushState({}, '', url);
+    setVersion(v);
+    document.body.className = `theme-v${v}`;
+  };
 
   return (
-    <div className="app-container app-tech">
-      <header className="app-header-tech">
-        <div className="status-dot"></div>
-        <h1 className="header-title-tech">Workspace</h1>
-        <div className="header-meta mono-text">V0.2.1 • ONLINE</div>
-      </header>
-      
-      <main className="main-content-tech">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, scale: 0.99, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 1.01, y: -10 }}
-            transition={{ type: 'spring', stiffness: 500, damping: 40 }}
-            className="tab-content-tech"
+    <>
+      {/* Dev Switcher UI floating at top right */}
+      <div style={{
+        position: 'fixed', top: '10px', right: '10px', zIndex: 9999,
+        background: 'rgba(0,0,0,0.8)', padding: '5px', borderRadius: '8px',
+        display: 'flex', gap: '5px', backdropFilter: 'blur(5px)'
+      }}>
+        {['1', '2', '3', '4'].map(v => (
+          <button 
+            key={v} 
+            onClick={() => setV(v)}
+            style={{
+              padding: '4px 8px', borderRadius: '4px', border: 'none',
+              background: version === v ? '#4F46E5' : 'transparent',
+              color: 'white', cursor: 'pointer', fontFamily: 'monospace',
+              fontSize: '12px'
+            }}
           >
-            {activeTab === 'todos' && <TodoTab />}
-            {activeTab === 'goals' && <GoalsTab />}
-            {activeTab === 'settings' && <SettingsTab />}
-          </motion.div>
-        </AnimatePresence>
-      </main>
-
-      <div className="nav-wrapper-tech">
-        <nav className="dock-tech">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`dock-item-tech ${isActive ? 'active' : ''}`}
-                aria-label={item.label}
-              >
-                <div className="icon-wrap-tech">
-                  <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
-                  <span className={`dock-label mono-text ${isActive ? 'active' : ''}`}>{item.label}</span>
-                  {isActive && (
-                    <motion.div
-                      layoutId="dock-indicator-tech"
-                      className="dock-indicator-tech"
-                      transition={{ type: "spring", stiffness: 600, damping: 30 }}
-                    />
-                  )}
-                </div>
-              </button>
-            );
-          })}
-        </nav>
+            v{v}
+          </button>
+        ))}
       </div>
-    </div>
+
+      <Suspense fallback={<div style={{color:'white', padding:'2rem'}}>Loading version...</div>}>
+        {renderApp()}
+      </Suspense>
+    </>
   );
 }
 
-export default App;
+export default MainRouter;

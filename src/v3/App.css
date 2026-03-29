@@ -1,0 +1,55 @@
+.app-container.app-playful {
+  display: flex; flex-direction: column; height: 100vh; margin: 0 auto; position: relative; overflow: hidden;
+}
+
+.app-header-soft { padding: 3rem 1.5rem 1rem; }
+
+.header-title-soft { font-size: 2.25rem; font-weight: 800; letter-spacing: -0.5px; color: var(--text-primary); margin-bottom: 0.25rem; }
+
+.app-subtitle-soft { font-size: 1rem; font-weight: 600; color: var(--text-muted); }
+
+.main-content-soft { flex: 1; overflow-y: auto; padding: 0 1.5rem 8rem; }
+
+.tab-content-soft { display: flex; flex-direction: column; gap: 1.5rem; max-width: 600px; margin: 0 auto; }
+
+.nav-wrapper-bubbly { position: fixed; bottom: 2rem; left: 0; right: 0; display: flex; justify-content: center; pointer-events: none; z-index: 100; }
+
+.bubbly-dock {
+  display: flex; gap: 0.75rem; padding: 0.75rem; background: var(--surface-bg);
+  border-radius: var(--radius-pill); box-shadow: var(--shadow-soft); pointer-events: auto;
+  border: 1px solid var(--surface-border);
+}
+
+.bubbly-item {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  width: 56px; height: 56px; border-radius: 50%; color: var(--text-muted); transition: color 0.3s ease;
+}
+
+.bubbly-item.active { color: var(--surface-bg); }
+
+.icon-wrap-bubbly { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; }
+
+.bubbly-indicator {
+  position: absolute; inset: -14px; background: var(--accent); border-radius: 50%; z-index: -1;
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.4);
+}
+
+.input-bubbly {
+  width: 100%; background: var(--surface-bg); border: 2px solid transparent;
+  border-radius: var(--radius-pill); color: var(--text-primary); padding: 1rem 1.5rem;
+  font-size: 1.1rem; font-weight: 600; box-shadow: var(--shadow-soft);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.input-bubbly::placeholder { color: var(--text-muted); font-weight: 500; }
+.input-bubbly:focus { outline: none; border-color: var(--accent-light); box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15); }
+
+.btn-bubbly {
+  background: var(--accent); color: white; padding: 1rem 2rem; border-radius: var(--radius-pill);
+  font-weight: 800; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center;
+  gap: 0.5rem; box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3); transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-bubbly:hover:not(:disabled) { transform: translateY(-2px) scale(1.02); box-shadow: 0 6px 16px rgba(56, 189, 248, 0.4); }
+.btn-bubbly:active:not(:disabled) { transform: translateY(2px) scale(0.95); box-shadow: 0 2px 4px rgba(56, 189, 248, 0.2); }
+.btn-bubbly:disabled { background: var(--surface-border); color: var(--text-muted); box-shadow: none; cursor: not-allowed; transform: none; }

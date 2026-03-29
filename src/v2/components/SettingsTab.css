@@ -1,0 +1,32 @@
+.settings-editorial { gap: 2rem; display: flex; flex-direction: column;}
+
+.settings-content { display: flex; flex-direction: column; gap: 2.5rem; }
+
+.editorial-quote {
+  font-size: 2rem; line-height: 1.1; color: var(--text-primary);
+  margin: 0; border-left: 2px solid var(--accent); padding-left: 1.5rem; font-style: italic;
+}
+
+.settings-prose { font-size: 1.125rem; line-height: 1.6; color: var(--text-secondary); columns: 1; }
+
+.api-form-editorial { display: flex; flex-direction: column; gap: 2rem; margin-top: 1rem; }
+
+.input-group { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.editorial-label { font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; color: var(--text-muted); }
+
+.input-with-icon { position: relative; display: flex; align-items: center; }
+
+.input-icon { position: absolute; left: 0; color: var(--text-muted); }
+
+.input-with-icon .input-underline { padding-left: 2rem; }
+
+.privacy-card { display: flex; align-items: flex-start; gap: 1rem; padding: 1.5rem 0; border-top: 1px solid var(--surface-border); margin-top: 1rem; }
+
+.privacy-icon { color: var(--warning); flex-shrink: 0; }
+
+.privacy-text-wrap { display: flex; flex-direction: column; gap: 0.25rem; }
+
+.privacy-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-primary); }
+
+.privacy-desc { font-size: 0.95rem; line-height: 1.4; color: var(--text-secondary); }

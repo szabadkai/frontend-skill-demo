@@ -1,0 +1,54 @@
+.goals-elegant { display: flex; flex-direction: column; gap: 2rem; }
+
+.infer-section { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.btn-brutal {
+  width: 100%; background: transparent; color: var(--text-primary);
+  border: 1px solid var(--text-primary); padding: 1rem 1.75rem;
+  font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); cursor: pointer;
+}
+
+.btn-brutal:hover:not(:disabled) {
+  background: var(--text-primary); color: var(--bg-color); transform: translateY(-2px);
+}
+
+.btn-brutal:disabled { opacity: 0.4; cursor: not-allowed; border-color: var(--text-muted); color: var(--text-muted); }
+
+.btn-content { display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+.spin { animation: spin 1.2s linear infinite; }
+
+.error-text-elegant { color: var(--danger); font-size: 0.8rem; font-style: italic; text-align: center; font-family: var(--font-serif); }
+
+.goals-wrapper-elegant { display: flex; flex-direction: column; gap: 2rem; padding-bottom: 2rem; }
+
+.goal-card-editorial {
+  position: relative; display: flex; flex-direction: column; padding: 2rem 1.5rem;
+  background: transparent; border: 1px solid var(--surface-border); overflow: hidden; gap: 2rem; transition: border-color 0.3s;
+}
+
+.goal-card-editorial:hover { border-color: var(--text-primary); }
+
+.goal-content-main { position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+
+.goal-text-wrap { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.ai-tag {
+  display: inline-block; font-size: 0.65rem; font-weight: 700; letter-spacing: 1px;
+  color: var(--text-secondary); border: 1px solid var(--surface-border); padding: 0.2rem 0.5rem; width: fit-content;
+}
+
+.goal-heading { font-size: 2.25rem; line-height: 1.1; color: var(--text-primary); margin: 0; }
+
+.goal-progress-massive { position: relative; margin-top: auto; }
+
+.progress-watermark {
+  position: absolute; bottom: -1rem; right: -0.5rem; font-size: 8rem; line-height: 0.8;
+  color: var(--text-primary); opacity: 0.04; pointer-events: none; z-index: 0; user-select: none;
+}
+
+.progress-bar-thin { position: relative; height: 2px; background: var(--surface-border); z-index: 2; }
+.progress-fill-thin { position: absolute; top: 0; bottom: 0; left: 0; background: var(--text-primary); transition: width 1s ease; }
+
+.delete-goal { color: var(--text-muted); transition: color 0.2s; }
+.delete-goal:hover { color: var(--danger); }

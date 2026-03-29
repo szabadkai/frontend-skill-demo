@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useStore } from '../store/useStore';
-import { inferGoals } from '../services/llm';
+import { useStore } from '../../store/useStore';
+import { inferGoals } from '../../services/llm';
 import { Trash2, Loader2, Play, GitBranch } from 'lucide-react';
 import './GoalsTab.css';
 

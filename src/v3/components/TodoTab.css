@@ -1,0 +1,62 @@
+.todo-bubbly { gap: 1.5rem; display: flex; flex-direction: column; }
+
+.tab-header-soft { display: flex; align-items: center; gap: 1rem; }
+
+.tab-title-soft { font-size: 1.8rem; font-weight: 800; margin: 0; color: var(--text-primary); }
+
+.count-badge-soft {
+  font-size: 0.85rem; font-weight: 800; color: white; background: var(--accent);
+  padding: 0.35rem 0.85rem; border-radius: var(--radius-pill); box-shadow: 0 4px 10px rgba(56, 189, 248, 0.25);
+}
+
+.input-wrap-bubbly { position: relative; display: flex; align-items: center; }
+
+.bubbly-add-btn {
+  position: absolute; right: 0.5rem; width: 44px; height: 44px; border-radius: 50%;
+  background: var(--accent); color: white; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+}
+
+.bubbly-add-btn:disabled { opacity: 0; transform: scale(0.5); pointer-events: none; }
+.bubbly-add-btn:hover { transform: scale(1.05); }
+.bubbly-add-btn:active { transform: scale(0.9); }
+
+.todos-wrapper-soft { flex: 1; padding-bottom: 2rem; }
+
+.todo-list-bubbly { display: flex; flex-direction: column; gap: 0.75rem; list-style: none; }
+
+.todo-row-soft { background: var(--surface-bg); border-radius: var(--radius-main); box-shadow: var(--shadow-soft); transition: opacity 0.3s, transform 0.2s; }
+
+.todo-row-soft.is-done-soft { opacity: 0.6; }
+.todo-row-soft.is-done-soft .todo-text-soft { text-decoration: line-through; color: var(--text-muted); }
+
+.todo-content-bubbly { display: flex; align-items: center; padding: 1rem 1.25rem; gap: 1rem; }
+
+.bouncy-checkbox {
+  width: 28px; height: 28px; border: 3px solid var(--surface-border); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; background: transparent; flex-shrink: 0;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); color: white;
+}
+
+.bouncy-checkbox:hover { border-color: var(--accent-light); transform: scale(1.05); }
+.bouncy-checkbox.checked-soft { background: var(--success); border-color: var(--success); box-shadow: 0 4px 12px rgba(52, 211, 153, 0.3); }
+.bouncy-checkbox:active { transform: scale(0.9); }
+
+.todo-text-soft { flex: 1; font-size: 1.125rem; font-weight: 600; color: var(--text-primary); user-select: none; transition: color 0.3s; }
+
+.delete-btn-soft {
+  color: var(--surface-border); padding: 0.5rem; border-radius: 50%; display: flex; align-items: center;
+  justify-content: center; transition: all 0.2s;
+}
+
+.todo-row-soft:hover .delete-btn-soft { color: var(--text-muted); }
+.delete-btn-soft:hover { color: var(--danger) !important; background: rgba(251, 113, 133, 0.1); transform: scale(1.1); }
+
+.drag-handle-soft { cursor: grab; display: flex; align-items: center; justify-content: center; color: var(--surface-border); transition: color 0.2s; }
+.todo-row-soft:hover .drag-handle-soft { color: var(--text-muted); }
+.drag-handle-soft:active { cursor: grabbing; }
+.grip-icon-soft { opacity: 0.5; }
+
+.empty-state-bubbly { padding: 3rem 0; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+.empty-circle { width: 80px; height: 80px; background: var(--surface-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; box-shadow: var(--shadow-soft); }
+.empty-state-bubbly p { color: var(--text-muted); font-size: 1.1rem; font-weight: 600; }

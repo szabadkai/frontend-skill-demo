@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Reorder, AnimatePresence, motion } from 'framer-motion';
-import { useStore } from '../store/useStore';
+import { useStore } from '../../store/useStore';
 import { CornerDownLeft, X, Check, GripVertical } from 'lucide-react';
 import './TodoTab.css';
 
@@ -72,7 +72,6 @@ export default function TodoTab() {
                 exit={{ opacity: 0, x: 10, height: 0 }}
                 transition={{ type: "spring", stiffness: 600, damping: 40 }}
                 className={`todo-row-tech chrome-panel ${todo.completed ? 'is-done-tech' : ''}`}
-                dragListener={false} 
               >
                 <div className="todo-content-tech">
                   <div className="drag-handle-tech">

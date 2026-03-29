@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useStore } from '../store/useStore';
+import { useStore } from '../../store/useStore';
 import { KeyRound, ShieldAlert, TerminalSquare } from 'lucide-react';
 import './SettingsTab.css';
 

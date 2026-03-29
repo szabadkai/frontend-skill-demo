@@ -1,37 +1,87 @@
+/* UNIFIED MULTI-THEME CSS */
+
 :root {
-  /* Typography - Technical & Crisp */
-  --font-sans: 'Figtree', system-ui, -apple-system, sans-serif;
-  --font-mono: 'Fira Code', ui-monospace, SFMono-Regular, monospace;
-  
-  /* Carbon & Chrome Palette */
-  --bg-color: #0A0A0B;       /* Deep Obsidian */
-  
-  --surface-bg: #121214;     /* Elevated panel */
-  --surface-bg-hover: #18181B; /* Subtle hover state */
-  --surface-border: #27272A; /* Precise 1px zinc border */
-  
-  --text-primary: #FAFAFA;   /* Maximum contrast white */
-  --text-secondary: #A1A1AA; /* Muted zinc for metadata */
-  --text-muted: #52525B;     /* Disabled or deep metadata */
-  
-  --accent: #6366F1;         /* Sharp Indigo */
-  --accent-light: #818CF8;   /* Hover / Focus Indigo */
-  --accent-gradient: linear-gradient(to right, #6366F1, #8B5CF6); /* Subtle tech pulse */
-  
-  --success: #10B981;        /* Emerald */
-  --danger: #EF4444;         /* Red */
-  
-  --radius-main: 8px;        /* Precise, subtle corners */
+  /* Default fallbacks */
+  --font-sans: system-ui, sans-serif;
+  --bg-color: #0f172a;
+  --text-primary: #f8fafc;
+}
+
+body.theme-v1 {
+  /* Generic AI Dark Mode */
+  --font-sans: system-ui, -apple-system, sans-serif;
+  --bg-color: #0d0f17;
+  --surface-bg: rgba(20, 25, 40, 0.6);
+  --surface-border: rgba(255, 255, 255, 0.1);
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #64748b;
+  --accent: #8b5cf6;
+  --accent-light: #a78bfa;
+  --accent-gradient: linear-gradient(135deg, #8b5cf6, #ec4899);
+  --success: #10b981;
+  --danger: #ef4444;
+  --shadow-glow: 0 0 15px rgba(139, 92, 246, 0.3);
+}
+
+body.theme-v2 {
+  /* Editorial Light Mode */
+  --font-sans: 'Albert Sans', sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --bg-color: #F8F7F4;
+  --surface-bg: transparent;
+  --surface-border: #E5E4E1;
+  --text-primary: #1A1918;
+  --text-secondary: #4A4845;
+  --text-muted: #8F8C86;
+  --accent: #1A1918;
+  --accent-light: #4A4845;
+  --success: #1A1918;
+  --danger: #D3412E;
+  --warning: #B37100;
+}
+
+body.theme-v3 {
+  /* Bubbly Casual Mode */
+  --font-sans: 'Nunito', sans-serif;
+  --bg-color: #F4F7FC;
+  --surface-bg: #FFFFFF;
+  --surface-bg-hover: #F0F4F8;
+  --surface-border: #E2E8F0;
+  --text-primary: #334155;
+  --text-secondary: #64748B;
+  --text-muted: #94A3B8;
+  --accent: #38BDF8;
+  --accent-light: #7DD3FC;
+  --accent-gradient: linear-gradient(135deg, #38BDF8, #818CF8);
+  --success: #34D399;
+  --danger: #FB7185;
+  --radius-main: 24px;
   --radius-pill: 999px;
-  
+  --shadow-soft: 0 10px 25px -5px rgba(51, 65, 85, 0.08);
+}
+
+body.theme-v4 {
+  /* Technical Elegance */
+  --font-sans: 'Figtree', sans-serif;
+  --font-mono: 'Fira Code', monospace;
+  --bg-color: #0A0A0B;
+  --surface-bg: #121214;
+  --surface-border: #27272A;
+  --text-primary: #FAFAFA;
+  --text-secondary: #A1A1AA;
+  --text-muted: #52525B;
+  --accent: #6366F1;
+  --accent-light: #818CF8;
+  --accent-gradient: linear-gradient(to right, #6366F1, #8B5CF6);
+  --success: #10B981;
+  --danger: #EF4444;
+  --warning: #F59E0B;
+  --radius-main: 8px;
   --shadow-glow: 0 0 16px rgba(99, 102, 241, 0.2);
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   font-family: var(--font-sans);
@@ -40,17 +90,13 @@ body {
   min-height: 100vh;
   min-height: -webkit-fill-available;
   overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s, color 0.3s;
 }
 
-html {
-  height: -webkit-fill-available;
-  background-color: var(--bg-color);
-}
+html { height: -webkit-fill-available; background-color: var(--bg-color); }
 
 button {
-  font-family: var(--font-sans);
+  font-family: inherit;
   cursor: pointer;
   border: none;
   background: none;
@@ -59,11 +105,27 @@ button {
 }
 
 input, textarea {
-  font-family: var(--font-sans);
+  font-family: inherit;
   outline: none;
 }
 
-/* Glass & Technical panels */
+/* V1 Utils */
+.glass-panel {
+  background: var(--surface-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--surface-border);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* V3 Utils */
+.soft-card {
+  background: var(--surface-bg);
+  border-radius: var(--radius-main);
+  box-shadow: var(--shadow-soft);
+}
+
+/* V4 Utils */
 .chrome-panel {
   background: var(--surface-bg);
   border: 1px solid var(--surface-border);
@@ -77,18 +139,9 @@ input, textarea {
   letter-spacing: -0.5px;
 }
 
-/* Scrollbar tweaks - sleek and minimal */
-::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
   background: var(--surface-border);
-  border-radius: 2px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+  border-radius: 4px;
 }
