@@ -52,7 +52,7 @@ function App() {
     } else if (swipeX === 1 && currentIndex > 0) {
       changeTab(navItems[currentIndex - 1].id, -1);
     }
-  }, { swipe: { distance: 40, velocity: 0.3 } });
+  }, { swipe: { distance: 25, velocity: 0.15 } });
 
   return (
     <div className="app-container app-playful">
