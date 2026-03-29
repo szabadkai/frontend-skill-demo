@@ -70,9 +70,7 @@
 
 .dock-tech {
   display: flex;
-  background: rgba(18, 18, 20, 0.6);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  background: var(--surface-bg);
   border: 1px solid var(--surface-border);
   border-radius: var(--radius-main);
   padding: 0.5rem;
@@ -187,7 +185,7 @@ body.theme-v4.light .app-header-tech {
 }
 
 body.theme-v4.light .dock-tech {
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--surface-bg);
   border-color: #E4E4E7;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
